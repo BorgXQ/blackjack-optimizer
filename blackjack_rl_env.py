@@ -141,6 +141,23 @@ class BlackjackRLEnv:
             else:
                 reward -= 1.0 # Penalty for invalid action
 
+        # if action_name == 'hit':
+        #     self.game.player_hit(self.current_hand_index)
+                
+        # elif action_name == 'stand':
+        #     # No immediate reward for standing
+        #     pass
+            
+        # elif action_name == 'split':
+        #     if not self.game.split_hand():
+        #         # This should not happen with proper action masking
+        #         reward -= 1.0  # Large penalty for invalid action
+                
+        # elif action_name == 'double':
+        #     if not self.game.double_down(self.current_hand_index):
+        #         # This should not happen with proper action masking
+        #         reward -= 1.0  # Large penalty for invalid action
+
         # Check if current hand is done (busted, stood, or doubled)
         hand_done = (
             current_hand.is_busted() or action_name == 'stand' or action_name == 'double'
