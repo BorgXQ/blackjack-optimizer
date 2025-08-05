@@ -25,7 +25,7 @@ class Card:
 class Deck:
     """Represents a deck of playing cards"""
 
-    def __init__(self, num_decks: int=1):
+    def __init__(self, num_decks: int=6):
         self.cards: List[Card] = []
         self.num_decks = num_decks
         self.reset_deck()
@@ -110,7 +110,7 @@ class Hand:
 
 class BlackjackGame:
     """Main Blackjack game class"""
-    def __init__(self, num_decks: int=1):
+    def __init__(self, num_decks: int=6):
         self.deck = Deck(num_decks)
         self.player_hand = Hand()
         self.dealer_hand = Hand()
@@ -134,7 +134,7 @@ class BlackjackGame:
     
     def deal_initial_cards(self):
         """Deals the initial two cards to player and dealer"""
-        if len(self.deck.cards) < 10: # Reshuffle if deck is running low
+        if len(self.deck.cards) < 208: # Reshuffle if deck is running low
             print("Reshuffling deck...")
             self.deck.reset_deck()
 
