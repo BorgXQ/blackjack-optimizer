@@ -103,7 +103,9 @@ class Hand:
             return f"[{self.cards[0]}, Hidden Card]"
         else:
             cards_str = ", ".join(str(card) for card in self.cards)
-            return f"[{cards_str}] (Value: {self.get_value()})"
+            # Show value only if not a hidden dealer hand
+            value_str = f" (Value: {self.get_value()})" if not (self.is_dealer and len(self.cards) > 1) else ""
+            return f"[{cards_str}]{value_str}"
 
 
 class BlackjackGame:
@@ -139,6 +141,7 @@ class BlackjackGame:
         # Clear previous hands
         self.player_hand.clear()
         self.dealer_hand.clear()
+        self.dealer_hand.is_dealer = True
         self.game_over = False
 
         # Deal two cards to each
