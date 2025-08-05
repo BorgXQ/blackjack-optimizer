@@ -50,6 +50,8 @@ python run_simulation.py
 | **Winrate** | 0.4218 | 0.2794 | 50.94 |
 | **Avg Return** | -0.0669 | -0.4407 | 84.83 |
 
+<img src="raw/training_progress.png" alt="Plots for rewards, winrate, and epsilon decay over episodes" width="600" style="text-align: center;"> <br>
+
 ## Future Work
 
 The discussion portion of the project is under construction. Stay tuned!
