@@ -72,7 +72,7 @@ class MonteCarloAgent:
 
         while True:
             # Get valid actions and select action
-            valid_actions = env.get_valid_actions(state)
+            valid_actions = env.get_valid_actions()
             if not valid_actions:
                 break
 
@@ -183,7 +183,7 @@ class MonteCarloAgent:
             'action_counts': dict(self.action_counts)
         }
 
-        with open(filepath, 'w') as f:
+        with open(filepath, 'wb') as f:
             pickle.dump(model_data, f)
 
     def load_model(self, filepath: str) -> None:
