@@ -164,7 +164,7 @@ class BlackjackRLEnv:
         # Play dealer's hand
         any_player_active = any(not hand.is_busted() for hand in self.game.player_hands)
         if any_player_active:
-            self.game.play_dealer_hand()
+            self.game.dealer_play()
 
         # Determine winners and calculate rewards
         results = self.game.determine_winner()
@@ -176,12 +176,12 @@ class BlackjackRLEnv:
         for i, result in enumerate(results):
             if result == "player" or result == "player_blackjack":
                 if result == "player_blackjack":
-                    total_reward += 1.5 # 3:2 payout bonus
+                    total_rewards += 1.5 # 3:2 payout bonus
                 else:
-                    total_reward += 1.0 # Regular win
+                    total_rewards += 1.0 # Regular win
                 wins += 1
             elif result == "dealer":
-                total_reward -= 1.0 # Loss
+                total_rewards -= 1.0 # Loss
             # Push (tie) contributes 0 to reward
         
         # Store episode stats
