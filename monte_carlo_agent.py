@@ -2,6 +2,7 @@ import numpy as np
 import random
 from collections import defaultdict
 from typing import Tuple, List, Dict
+from config import EPSILON, EPSILON_DECAY, EPSILON_MIN
 import pickle
 
 
@@ -10,9 +11,9 @@ class MonteCarloAgent:
 
     def __init__(
         self,
-        epsilon: float=0.1,
-        epsilon_decay: float=0.9999,
-        epsilon_min: float=0.01,
+        epsilon: float=EPSILON,
+        epsilon_decay: float=EPSILON_DECAY,
+        epsilon_min: float=EPSILON_MIN,
         gamma: float=1.0, # No discounting for episodic tasks
     ):
         self.epsilon = epsilon
