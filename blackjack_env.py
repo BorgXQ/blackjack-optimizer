@@ -112,12 +112,14 @@ class BlackjackGame:
     """Main Blackjack game class"""
     def __init__(self, num_decks: int=6):
         self.deck = Deck(num_decks)
-        self.player_hand = Hand()
+        self.player_hands = [Hand()] # List to support splitting
         self.dealer_hand = Hand()
         self.dealer_hand.is_dealer = True
         self.game_over = False
         self.player_balance = 1000 # Starting balance
         self.current_bet = 0
+        self.split_bets = [] # Track bets for each hand
+        self.has_split = False
 
     def place_bet(self, amount: int) -> bool:
         """Places a bet for the current hand"""
@@ -130,6 +132,7 @@ class BlackjackGame:
         
         self.current_bet = amount
         self.player_balance -= amount
+        self.split_bets = [amount]
         return True
     
     def deal_initial_cards(self):
@@ -139,33 +142,77 @@ class BlackjackGame:
             self.deck.reset_deck()
 
         # Clear previous hands
-        self.player_hand.clear()
+        self.player_hands = [Hand()]
         self.dealer_hand.clear()
         self.dealer_hand.is_dealer = True
         self.game_over = False
+        self.has_split = False
 
         # Deal two cards to each
         for _ in range(2):
-            self.player_hand.add_card(self.deck.deal_card())
+            self.player_hands[0].add_card(self.deck.deal_card())
             self.dealer_hand.add_card(self.deck.deal_card())
 
-    def player_hit(self) -> bool:
+    def can_split(self, hand_index: int=0) -> bool:
+        """Checks if player can split hand"""
+        if self.has_split:
+            return False
+        if len(self.player_hands[hand_index].cards) != 2:
+            return False
+        if self.current_bet > self.player_balance:
+            return False
+        
+        # Check if both cards have same values
+        card1 = self.player_hands[hand_index].cards[0]
+        card2 = self.player_hands[hand_index].cards[1]
+        return card1.value() == card2.value()
+    
+    def split_hand(self, hand_index: int=0) -> bool:
+        """Splits hand into two"""
+        if not self.can_split(hand_index):
+            return False
+        
+        # Deduct additional bet
+        self.player_balance -= self.current_bet
+        self.split_bets.append(self.current_bet)
+        self.has_split = True
+        
+        # Split the hand
+        original_hand = self.player_hands[hand_index]
+        card1 = original_hand.cards[0]
+        card2 = original_hand.cards[1]
+        
+        # Create two new hands
+        hand1 = Hand()
+        hand2 = Hand()
+        hand1.add_card(card1)
+        hand2.add_card(card2)
+        
+        # Deal one more card to each hand
+        hand1.add_card(self.deck.deal_card())
+        hand2.add_card(self.deck.deal_card())
+        
+        # Replace original hand with split hands
+        self.player_hands = [hand1, hand2]
+        
+        return True
+
+    def player_hit(self, hand_index: int=0) -> bool:
         """Player takes another card"""
         if self.game_over:
             return False
         
         card = self.deck.deal_card()
         if card:
-            self.player_hand.add_card(card)
+            self.player_hands[hand_index].add_card(card)
             print(f"You drew {card}")
 
-            if self.player_hand.is_busted():
-                print("You busted!")
-                self.game_over = True
+            if self.player_hands[hand_index].is_busted():
+                print(f"Hand {hand_index + 1} busted!")
                 return False
             
         return True
-    
+
     def dealer_play(self):
         """Dealer hits until >=17"""
         print("\nDealer reveals hidden card...")
@@ -185,39 +232,53 @@ class BlackjackGame:
 
     def determine_winner(self) -> str:
         """Determines the winner and handles payouts"""
-        player_value = self.player_hand.get_value()
+        results = []
         dealer_value = self.dealer_hand.get_value()
-
-        # Player busted
-        if self.player_hand.is_busted():
-            return "dealer"
-        
-        # Dealer busted
-        if self.dealer_hand.is_busted():
-            self.player_balance += self.current_bet * 2
-            return "player"
-        
-        # Check for blackjacks
-        player_bj = self.player_hand.is_blackjack()
+        dealer_busted = self.dealer_hand.is_busted()
         dealer_bj = self.dealer_hand.is_blackjack()
 
-        if player_bj and dealer_bj:
-            return "push"
-        if player_bj:
-            self.player_balance += int(self.current_bet * 2.5) # 3:2 payout
-            return "player_blackjack"
-        if dealer_bj:
-            return "dealer"
+        for i, hand in enumerate(self.player_hands):
+            player_value = hand.get_value()
+            player_busted = hand.is_busted()
+            player_bj = hand.is_blackjack()
+            bet = self.split_bets[i]
+            
+            # Player busted
+            if player_busted:
+                results.append("dealer")
+                continue
+            
+            # Dealer busted
+            if dealer_busted:
+                self.player_balance += bet * 2
+                results.append("player")
+                continue
+            
+            # Check for blackjacks (only possible if not split)
+            if not self.has_split:
+                if player_bj and dealer_bj:
+                    self.player_balance += bet  # Push
+                    results.append("push")
+                    continue
+                elif player_bj:
+                    self.player_balance += int(bet * 2.5)  # 3:2 payout
+                    results.append("player_blackjack")
+                    continue
+                elif dealer_bj:
+                    results.append("dealer")
+                    continue
+            
+            # Compare values
+            if player_value > dealer_value:
+                self.player_balance += bet * 2
+                results.append("player")
+            elif dealer_value > player_value:
+                results.append("dealer")
+            else:
+                self.player_balance += bet  # Push
+                results.append("push")
         
-        # Compare values
-        if player_value > dealer_value:
-            self.player_balance += self.current_bet * 2
-            return "player"
-        if dealer_value > player_value:
-            return "dealer"
-        else:
-            self.player_balance += self.current_bet # Push
-            return "push"
+        return results
         
     def play_hand(self, bet_amount: int=10):
         """Plays a complete hand of blackjack"""
@@ -232,11 +293,11 @@ class BlackjackGame:
         # Deal initial cards
         self.deal_initial_cards()
 
-        print(f"\nYour hand: {self.player_hand}")
+        print(f"\nYour hand: {self.player_hands[0]}")
         print(f"Dealer's hand: {self.dealer_hand}")
 
         # Check for immediate blackjacks
-        player_bj = self.player_hand.is_blackjack()
+        player_bj = self.player_hands[0].is_blackjack()
         dealer_bj = self.dealer_hand.is_blackjack()
         
         if player_bj or dealer_bj:
@@ -250,43 +311,73 @@ class BlackjackGame:
             self.print_result(result)
             return
         
-        # Player's turn
-        while not self.game_over:
-            action = input("\nHit (h) or Stand (s)? ").lower().strip()
-
-            if action == 'h':
-                if not self.player_hit():
+        # Player's turn for each hand
+        for hand_idx in range(len(self.player_hands)):
+            if len(self.player_hands) > 1:
+                print(f"\n--- Playing Hand {hand_idx + 1} ---")
+            
+            while True:
+                current_hand = self.player_hands[hand_idx]
+                print(f"Hand {hand_idx + 1}: {current_hand}")
+                
+                # Check if hand is busted
+                if current_hand.is_busted():
                     break
-                print(f"Your hand: {self.player_hand}")
-            elif action == 's':
-                print("You stand.")
-                break
-            else:
-                print("Invalid input. Please enter 'h' for hit or 's' for stand.")
-
-        # Dealer's turn (if player didn't bust)
-        if not self.player_hand.is_busted():
+                
+                # Build action prompt
+                actions = "Hit (h) or Stand (s)"
+                if hand_idx == 0 and self.can_split():
+                    actions += " or Split (p)"
+                actions += "? "
+                
+                action = input(actions).lower().strip()
+                
+                if action == 'h':
+                    if not self.player_hit(hand_idx):
+                        break
+                elif action == 's':
+                    print(f"You stand on hand {hand_idx + 1}.")
+                    break
+                elif action == 'p' and hand_idx == 0 and self.can_split():
+                    if self.split_hand():
+                        print("Hand split!")
+                        print(f"Hand 1: {self.player_hands[0]}")
+                        print(f"Hand 2: {self.player_hands[1]}")
+                        break  # Start over with first split hand
+                    else:
+                        print("Cannot split.")
+                else:
+                    print("Invalid input. Please enter 'h' for hit, 's' for stand" + 
+                          (", or 'p' for split" if hand_idx == 0 and self.can_split() else "") + ".")
+        
+        # Dealer's turn (if at least one hand didn't bust)
+        any_player_active = any(not hand.is_busted() for hand in self.player_hands)
+        if any_player_active:
             self.dealer_play()
+        
+        # Determine winners
+        results = self.determine_winner()
+        self.print_result(results)
 
-        # Determine winner
-        result = self.determine_winner()
-        self.print_result(result)
-
-    def print_result(self, result: str):
+    def print_result(self, results: str):
         """Prints the game result"""
         print("\nFinal hands:")
         self.dealer_hand.is_dealer = False # Show all cards
-        print(f"Your hand: {self.player_hand}")
+
+        for i, hand in enumerate(self.player_hands):
+            print(f"Your hand {i+1}: {hand}")
         print(f"Dealer's hand: {self.dealer_hand}")
 
-        if result == "player":
-            print("You win!")
-        if result == "player_blackjack":
-            print("Blackjack! You win!")
-        if result == "dealer":
-            print("Dealer wins!")
-        elif result == "push":
-            print("Push! It's a tie!")
+        for i, result in enumerate(results):
+            hand_num = f" (Hand {i + 1})" if len(results) > 1 else ""
+            if result == "player":
+                print(f"You win{hand_num}!")
+            elif result == "player_blackjack":
+                print(f"Blackjack! You win{hand_num}!")
+            elif result == "dealer":
+                print(f"Dealer wins{hand_num}!")
+            elif result == "push":
+                print(f"Push{hand_num}! It's a tie!")
 
         print(f"Balance: ${self.player_balance}")
 
