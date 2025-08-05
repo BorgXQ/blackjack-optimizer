@@ -11,7 +11,7 @@ class MonteCarloAgent:
     def __init__(
         self,
         epsilon: float=0.1,
-        epsilon_decay: float=0.9995,
+        epsilon_decay: float=0.999977,
         epsilon_min: float=0.01,
         gamma: float=1.0, # No discounting for episodic tasks
     ):
