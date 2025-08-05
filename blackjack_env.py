@@ -167,6 +167,31 @@ class BlackjackGame:
         card2 = self.player_hands[hand_index].cards[1]
         return card1.value() == card2.value()
     
+    def can_double_down(self, hand_index: int=0) -> bool:
+        """Checks if player can double down on hand"""
+        if len(self.player_hands[hand_index].cards) != 2:
+            return False
+        bet_for_hand = self.split_bets[hand_index] if hand_index < len(self.split_bets) else self.current_bet
+        return bet_for_hand <= self.player_balance
+    
+    def double_down(self, hand_index: int=0) -> bool:
+        """Doubles down on a hand"""
+        if not self.can_double_down():
+            return False
+        
+        # Double bet for hand
+        bet_for_hand = self.split_bets[hand_index] if hand_index < len(self.split_bets) else self.current_bet
+        self.player_balance -= bet_for_hand
+        self.split_bets[hand_index] = bet_for_hand * 2
+
+        # Deal exactly one card
+        card = self.deck.deal_card()
+        if card:
+            self.player_hands[hand_index].add_card(card)
+            print(f"You drew {card} (doubled down)")
+
+        return True
+    
     def split_hand(self, hand_index: int=0) -> bool:
         """Splits hand into two"""
         if not self.can_split(hand_index):
@@ -182,7 +207,7 @@ class BlackjackGame:
         card1 = original_hand.cards[0]
         card2 = original_hand.cards[1]
         
-        # Create two new hands
+        # Create two new hands and distribute the card pair
         hand1 = Hand()
         hand2 = Hand()
         hand1.add_card(card1)
@@ -325,6 +350,8 @@ class BlackjackGame:
                 actions = "Hit (h) or Stand (s)"
                 if hand_idx == 0 and self.can_split() and not self.has_split:
                     actions += " or Split (p)"
+                if self.can_double_down(hand_idx):
+                    actions += " or Double Down (d)"
                 actions += "? "
                 
                 action = input(actions).lower().strip()
@@ -335,6 +362,14 @@ class BlackjackGame:
                 elif action == 's':
                     print(f"You stand on hand {hand_idx + 1}.")
                     break
+                elif action == 'd' and self.can_double_down(hand_idx):
+                    if self.double_down(hand_idx):
+                        print(f"Hand {hand_idx + 1}: {current_hand}")
+                        if current_hand.is_busted():
+                            print(f"Hand {hand_idx + 1} busted!")
+                        break # Can't take more actions after double down
+                    else:
+                        print("Cannot double down.")
                 elif action == 'p' and hand_idx == 0 and self.can_split() and not self.has_split:
                     if self.split_hand():
                         print("Hand split!")
@@ -344,8 +379,12 @@ class BlackjackGame:
                     else:
                         print("Cannot split.")
                 else:
-                    print("Invalid input. Please enter 'h' for hit, 's' for stand" + 
-                          (", or 'p' for split" if hand_idx == 0 and self.can_split() and not self.has_split else "") + ".")
+                    valid_actions = "'h' for hit, 's' for stand"
+                    if hand_idx == 0 and self.can_split() and not self.has_split:
+                        valid_actions += ", 'p' for split"
+                    if self.can_double_down(hand_idx):
+                        valid_actions += ", 'd' for double down"
+                    print(f"Invalid input. Please enter {valid_actions}.")
                     
             hand_idx += 1
         
