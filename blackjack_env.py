@@ -66,7 +66,7 @@ class Hand:
         self.cards.append(card)
 
     def get_value(self) -> int:
-        """Calculates the total value of the hand, handling Aces properly"""
+        """Calculates the total value of the hand and handles Aces"""
         total = 0
         aces = 0
 
@@ -75,11 +75,13 @@ class Hand:
                 aces += 1
             else:
                 total += card.value()
+        
+        # Add aces as 1 first
+        total += aces
 
         # Adjust for Aces if bust
-        while total > 21 and aces > 0:
-            total -= 10
-            aces -= 1
+        if aces > 0 and total+10 <= 21:
+            total += 10
 
         return total
 
