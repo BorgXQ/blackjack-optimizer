@@ -312,7 +312,8 @@ class BlackjackGame:
             return
         
         # Player's turn for each hand
-        for hand_idx in range(len(self.player_hands)):
+        hand_idx = 0
+        while hand_idx < len(self.player_hands):
             if len(self.player_hands) > 1:
                 print(f"\n--- Playing Hand {hand_idx + 1} ---")
             
@@ -326,7 +327,7 @@ class BlackjackGame:
                 
                 # Build action prompt
                 actions = "Hit (h) or Stand (s)"
-                if hand_idx == 0 and self.can_split():
+                if hand_idx == 0 and self.can_split() and not self.has_split:
                     actions += " or Split (p)"
                 actions += "? "
                 
@@ -338,17 +339,19 @@ class BlackjackGame:
                 elif action == 's':
                     print(f"You stand on hand {hand_idx + 1}.")
                     break
-                elif action == 'p' and hand_idx == 0 and self.can_split():
+                elif action == 'p' and hand_idx == 0 and self.can_split() and not self.has_split:
                     if self.split_hand():
                         print("Hand split!")
                         print(f"Hand 1: {self.player_hands[0]}")
                         print(f"Hand 2: {self.player_hands[1]}")
-                        break  # Start over with first split hand
+                        continue
                     else:
                         print("Cannot split.")
                 else:
                     print("Invalid input. Please enter 'h' for hit, 's' for stand" + 
-                          (", or 'p' for split" if hand_idx == 0 and self.can_split() else "") + ".")
+                          (", or 'p' for split" if hand_idx == 0 and self.can_split() and not self.has_split else "") + ".")
+                    
+            hand_idx += 1
         
         # Dealer's turn (if at least one hand didn't bust)
         any_player_active = any(not hand.is_busted() for hand in self.player_hands)
