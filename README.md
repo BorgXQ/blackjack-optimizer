@@ -64,6 +64,6 @@ The discussion portion of the project is under construction. Stay tuned!
 
 You have practically near-zero edge in blackjack even when your strategy is heavily optimized. But if you're going to play anyway, here's a motivation:
 
-[St. Petersburg paradox](https://en.wikipedia.org/wiki/St._Petersburg_paradox) says that expected values in these games should be infinite, but in actuality, it isn't because it accounts for extremely rare events (like *absurdly impossible* events). But who's to say you're not going to be that one in a quintillion gambler who wins a thousand times in a row? After all, highly improbable ≠ impossible. It's not delusion; it's being risk-loving!
+[St. Petersburg paradox](https://en.wikipedia.org/wiki/St._Petersburg_paradox) says that the expected values in these games should be infinite, but in actuality, they aren't because they account for extremely rare events (like *absurdly impossible* events). But who's to say you're not going to be that one in a quintillion gambler who wins a thousand times in a row? After all, highly improbable ≠ impossible. It's not delusion; it's being risk-loving!
 
 On a serious note, understand bankroll management and don't gamble what you can't afford to lose.
