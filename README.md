@@ -32,7 +32,7 @@ pip install -r requirements.txt
 If you're simply trying to play blackjack against a computer, simply run the following:
 
 ```bash
-python blackjack_env.py
+python blackjack_game.py
 ```
 
 ### Run Simulation
@@ -45,13 +45,21 @@ python run_simulation.py
 
 ## Results
 
-| **Metric** | **Trained Agent** | **Random Baseline** | **Improvement (%)** |
+| **Metric** | **Trained Agent** | **Basic Strat Baseline** | **Random Baseline** |
 |-----------|------|-------------|---------|
-| **Winrate** | 0.4262 | 0.2757 | 54.60 |
-| **Avg Return** | -0.0608 | -0.4445 | 86.33 |
+| **Winrate** | 0.4185 | 0.4276 | 0.2874 |
+| **Avg Return** | -0.0711 | -0.0555 | -0.4209 |
 
-<img src="raw/training_progress.png" alt="Plots for rewards, winrate, and epsilon decay over episodes" width="600" style="text-align: center;"> <br>
+The trained agent observes a 45.6% improvement compared to the random baseline, but not as much as the 48.8% improvement by implementing the basic strategy in terms of win rate. For average rewards, the basic strategy still somewhat beats the trained agent, reaching an 86.8% improvement compared to the random baseline, with the trained model sitting at an 83.1% improvement.
 
-## Future Work
+<img src="raw/training_progress.png" alt="Plots for rewards, winrate, and epsilon decay over 1 mil episodes" width="600" style="text-align: center;"> <br>
+
+The win rate over the 1,000,000 episodes remain somewhat consistent, floating in between 41.0% and 43.0%, though not converging to a specific value. The average reward dramatically improves in the first 50,000 episodes, slowly climbs over the next 350,000 episodes, but then stagnates during the rest of the training period.
+
+## Discussion
 
 The discussion portion of the project is under construction. Stay tuned!
+
+## Conclusion
+
+You have very little edge in blackjack even when your strategy is heavily optimized. But if you're going to anyway, stick to bankroll management and don't gamble what you can't afford to lose, folks!
