@@ -47,8 +47,8 @@ python run_simulation.py
 
 | **Metric** | **Trained Agent** | **Random Baseline** | **Improvement (%)** |
 |-----------|------|-------------|---------|
-| **Winrate** | 0.4218 | 0.2794 | 50.94 |
-| **Avg Return** | -0.0669 | -0.4407 | 84.83 |
+| **Winrate** | 0.4262 | 0.2757 | 54.60 |
+| **Avg Return** | -0.0608 | -0.4445 | 86.33 |
 
 <img src="raw/training_progress.png" alt="Plots for rewards, winrate, and epsilon decay over episodes" width="600" style="text-align: center;"> <br>
 
