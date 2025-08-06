@@ -290,7 +290,7 @@ def main():
     # Train the agent
     agent, env, training_stats = train_agent(
         num_episodes=TRAINING_EPISODES,
-        starting_balance=100000,
+        starting_balance=100000000,
         fixed_bet=10,
         epsilon=EPSILON,
         epsilon_decay=EPSILON_DECAY,
