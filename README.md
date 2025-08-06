@@ -2,7 +2,7 @@
 
 Blackjack is one of the very few casino games I actually knew the rules of. Basically, you try to beat the dealer through a series of "hitting" and "standing" actions, doing your best to obtain a total higher than the dealer's but not over 21 (this is a bust). The casino always has the winning edge, but this project aims to see how far we, as the players, can get to even the playfield a little.
 
-Sutton and Barto's book on reinforcement learning was my main source of inspiration to build this model, specifically all the logic behind it. Essentially, I assume several conditions, simulate the blackjack environment, and see how much better the trained model performs than a random baseline.
+Sutton and Barto's book on reinforcement learning was my main source of inspiration to build this model, specifically all the logic behind it. Essentially, I assume several conditions, simulate the blackjack environment, and see how much better the trained model performs compared to the mathematically derived basic strategy and a random baseline.
 
 ## Installation
 
@@ -47,8 +47,8 @@ python run_simulation.py
 
 | **Metric** | **Trained Agent** | **Basic Strat Baseline** | **Random Baseline** |
 |-----------|------|-------------|---------|
-| **Winrate** | 0.4185 | 0.4276 | 0.2874 |
-| **Avg Return** | -0.0711 | -0.0555 | -0.4209 |
+| Winrate | 0.4185 | 0.4276 | 0.2874 |
+| Avg Return | -0.0711 | -0.0555 | -0.4209 |
 
 The trained agent observes a 45.6% improvement compared to the random baseline, but not as much as the 48.8% improvement by implementing the basic strategy in terms of win rate. For average rewards, the basic strategy still somewhat beats the trained agent, reaching an 86.8% improvement compared to the random baseline, with the trained model sitting at an 83.1% improvement.
 
