@@ -138,7 +138,6 @@ class BlackjackGame:
     def deal_initial_cards(self):
         """Deals the initial two cards to player and dealer"""
         if len(self.deck.cards) < 208: # Reshuffle if deck is running low
-            print("Reshuffling deck...")
             self.deck.reset_deck()
 
         # Clear previous hands
@@ -188,7 +187,6 @@ class BlackjackGame:
         card = self.deck.deal_card()
         if card:
             self.player_hands[hand_index].add_card(card)
-            print(f"You drew {card} (doubled down)")
 
         return True
     
@@ -226,29 +224,22 @@ class BlackjackGame:
         card = self.deck.deal_card()
         if card:
             self.player_hands[hand_index].add_card(card)
-            print(f"You drew {card}")
 
             if self.player_hands[hand_index].is_busted():
-                print(f"Hand {hand_index + 1} busted!")
                 return False
             
         return True
 
     def dealer_play(self):
         """Dealer hits until >=17"""
-        print("\nDealer reveals hidden card...")
         self.dealer_hand.is_dealer = False # Show all cards
-        print(f"Dealer's hand: {self.dealer_hand}")
 
         while self.dealer_hand.get_value() < 17:
             card = self.deck.deal_card()
             if card:
                 self.dealer_hand.add_card(card)
-                print(f"Dealer draws {card}")
-                print(f"Dealer's hand: {self.dealer_hand}")
 
             if self.dealer_hand.is_busted():
-                print("Dealer busted!")
                 break
 
     def determine_winner(self) -> str:
@@ -303,10 +294,6 @@ class BlackjackGame:
         
     def play_hand(self, bet_amount: int=10):
         """Plays a complete hand of blackjack"""
-        print(f"\n{'='*50}")
-        print(f"NEW HAND - Balance: {self.player_balance}")
-        print(f"{'='*50}")
-
         # Place bet
         if not self.place_bet(bet_amount):
             return
@@ -314,20 +301,12 @@ class BlackjackGame:
         # Deal initial cards
         self.deal_initial_cards()
 
-        print(f"\nYour hand: {self.player_hands[0]}")
-        print(f"Dealer's hand: {self.dealer_hand}")
-
         # Check for immediate blackjacks
         player_bj = self.player_hands[0].is_blackjack()
         dealer_bj = self.dealer_hand.is_blackjack()
         
         if player_bj or dealer_bj:
-            if player_bj:
-                print("Blackjack!")
-            if dealer_bj:
-                print("Dealer has blackjack!")
             self.dealer_hand.is_dealer = False # Show all cards
-            print(f"Dealer's hand: {self.dealer_hand}")
             result = self.determine_winner()
             self.print_result(result)
             return
@@ -335,12 +314,9 @@ class BlackjackGame:
         # Player's turn for each hand
         hand_idx = 0
         while hand_idx < len(self.player_hands):
-            if len(self.player_hands) > 1:
-                print(f"\n--- Playing Hand {hand_idx + 1} ---")
             
             while True:
                 current_hand = self.player_hands[hand_idx]
-                print(f"Hand {hand_idx + 1}: {current_hand}")
                 
                 # Check if hand is busted
                 if current_hand.is_busted():
@@ -360,31 +336,19 @@ class BlackjackGame:
                     if not self.player_hit(hand_idx):
                         break
                 elif action == 's':
-                    print(f"You stand on hand {hand_idx + 1}.")
                     break
                 elif action == 'd' and self.can_double_down(hand_idx):
                     if self.double_down(hand_idx):
-                        print(f"Hand {hand_idx + 1}: {current_hand}")
-                        if current_hand.is_busted():
-                            print(f"Hand {hand_idx + 1} busted!")
                         break # Can't take more actions after double down
-                    else:
-                        print("Cannot double down.")
                 elif action == 'p' and hand_idx == 0 and self.can_split() and not self.has_split:
                     if self.split_hand():
-                        print("Hand split!")
-                        print(f"Hand 1: {self.player_hands[0]}")
-                        print(f"Hand 2: {self.player_hands[1]}")
                         continue
-                    else:
-                        print("Cannot split.")
                 else:
                     valid_actions = "'h' for hit, 's' for stand"
                     if hand_idx == 0 and self.can_split() and not self.has_split:
                         valid_actions += ", 'p' for split"
                     if self.can_double_down(hand_idx):
                         valid_actions += ", 'd' for double down"
-                    print(f"Invalid input. Please enter {valid_actions}.")
                     
             hand_idx += 1
         
@@ -399,12 +363,7 @@ class BlackjackGame:
 
     def print_result(self, results: str):
         """Prints the game result"""
-        print("\nFinal hands:")
         self.dealer_hand.is_dealer = False # Show all cards
-
-        for i, hand in enumerate(self.player_hands):
-            print(f"Your hand {i+1}: {hand}")
-        print(f"Dealer's hand: {self.dealer_hand}")
 
         for i, result in enumerate(results):
             hand_num = f" (Hand {i + 1})" if len(results) > 1 else ""
@@ -421,9 +380,6 @@ class BlackjackGame:
 
     def play_game(self):
         """Main game loop"""
-        print("Welcome to Blackjack!")
-        print(f"Starting balance: ${self.player_balance}")
-
         while self.player_balance > 0:
             try:
                 bet = int(input(f"\nEnter your bet (max ${self.player_balance}), or 0 to quit: "))
