@@ -2,7 +2,7 @@ import numpy as np
 from blackjack_rl_env import BlackjackRLEnv
 from monte_carlo_agent import MonteCarloAgent
 from config import TRAINING_EPISODES, EVALUATION_EPISODES, BASELINE_EPISODES, EPSILON, EPSILON_DECAY
-from utils import plot_training_progress, analyze_policy, print_statistics
+from utils import plot_training_progress, analyze_policy, print_statistics, export_learned_strategy_csv
 import time
 
 
@@ -349,6 +349,9 @@ def main():
     
     # Show sample of learned policy
     agent.print_policy_sample(15)
+
+    # Export learned strategy to CSV
+    csv_filename = export_learned_strategy_csv(agent)
     
     # Plot training progress
     plot_training_progress(training_stats)
@@ -361,6 +364,7 @@ def main():
     print("=" * 60)
     print(f"States learned: {policy_analysis['states_learned']}")
     print(f"Final epsilon: {agent.epsilon:.6f}")
+    print(f"Strategy exported to: {csv_filename}")
     print("Model saved and evaluation complete!")
 
 if __name__ == "__main__":

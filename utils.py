@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Dict
+import csv
+from typing import Dict, List, Tuple
 from collections import defaultdict
 
 def plot_training_progress(training_stats: Dict):
@@ -37,10 +38,8 @@ def plot_training_progress(training_stats: Dict):
     # Plot 4: Smoothed Reward (if enough data)
     if len(training_stats['avg_rewards']) > 10:
         window = min(10, len(training_stats['avg_rewards']) // 10)
-        smoothed_rewards = np.convolve(
-            training_stats['avg_rewards'], 
-            np.ones(window)/window, mode='valid'
-        )
+        smoothed_rewards = np.convolve(training_stats['avg_rewards'], 
+                                     np.ones(window)/window, mode='valid')
         smooth_episodes = episodes[window-1:]
         
         ax4.plot(episodes, training_stats['avg_rewards'], 'b-', alpha=0.3, label='Raw')
@@ -61,7 +60,7 @@ def plot_training_progress(training_stats: Dict):
 
 def print_statistics(results: Dict):
     """Print formatted evaluation statistics"""
-
+    
     print(f"Average Reward: {results['avg_reward']:8.4f}")
     print(f"Std Deviation:  {results['std_reward']:8.4f}")
     print(f"Total Wins:     {results['total_wins']:8,}")
@@ -76,7 +75,9 @@ def print_statistics(results: Dict):
 
 def analyze_policy(agent) -> Dict:
     """Analyze the learned policy"""
-
+    
+    action_names = {0: 'Hit', 1: 'Stand', 2: 'Split', 3: 'Double'}
+    
     # Count actions by state characteristics
     policy_by_player_sum = defaultdict(lambda: defaultdict(int))
     policy_by_dealer_card = defaultdict(lambda: defaultdict(int))
@@ -115,7 +116,7 @@ def analyze_policy(agent) -> Dict:
 
 def plot_policy_heatmap(agent, save_path: str = 'policy_heatmap.png'):
     """Create a heatmap visualization of the learned policy"""
-
+    
     action_names = {0: 'H', 1: 'S', 2: 'P', 3: 'D'}
     
     # Create matrices for different scenarios
@@ -198,7 +199,7 @@ def plot_policy_heatmap(agent, save_path: str = 'policy_heatmap.png'):
 
 def compare_to_basic_strategy(agent) -> Dict:
     """Compare learned policy to basic blackjack strategy"""
-
+    
     # Basic strategy rules (simplified)
     def basic_strategy_action(player_sum: int, dealer_showing: int, usable_ace: bool) -> int:
         """Return basic strategy action (0=Hit, 1=Stand)"""
@@ -259,14 +260,71 @@ def compare_to_basic_strategy(agent) -> Dict:
         'disagreement_examples': comparisons[:10]  # First 10 disagreements
     }
 
-def save_results_summary(
-        agent,
-        eval_results: Dict,
-        baseline_results: Dict, 
-        filepath: str = 'results_summary.txt'
-):
-    """Save a comprehensive summary of results to file"""
+def export_learned_strategy_csv(agent, filename: str = "learned_blackjack_strategy.csv"):
+    """Export the learned strategy to a CSV file"""
+    
+    action_names = {0: 'Hit', 1: 'Stand', 2: 'Split', 3: 'Double'}
+    
+    # Prepare data for CSV
+    csv_data = []
+    
+    for state in agent.q_table:
+        if agent.q_table[state]:  # Only include states with Q-values
+            player_sum, dealer_visible, usable_ace, can_split, can_double = state
+            
+            # Find best action and its Q-value
+            best_action_idx = max(agent.q_table[state].items(), key=lambda x: x[1])[0]
+            best_q_value = agent.q_table[state][best_action_idx]
+            best_action_name = action_names[best_action_idx]
+            
+            # Convert Q-value to a more interpretable success likelihood
+            # Since Q-values represent expected returns, we can normalize them
+            # Higher Q-values = better expected outcomes
+            success_likelihood = best_q_value
+            
+            csv_data.append({
+                'player_sum': player_sum,
+                'dealer_visible': dealer_visible,
+                'usable_ace': usable_ace,
+                'can_split': can_split,
+                'can_double': can_double,
+                'best_action': best_action_name,
+                'success_likelihood': round(success_likelihood, 4)
+            })
+    
+    # Sort by state components for better readability
+    csv_data.sort(key=lambda x: (x['player_sum'], x['dealer_visible'], 
+                                 not x['usable_ace'], not x['can_split'], not x['can_double']))
+    
+    # Write to CSV
+    fieldnames = ['player_sum', 'dealer_visible', 'usable_ace', 'can_split', 
+                  'can_double', 'best_action', 'success_likelihood']
+    
+    with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(csv_data)
+    
+    print(f"\nLearned strategy exported to {filename}")
+    print(f"Total states learned: {len(csv_data):,}")
+    
+    # Provide some summary statistics
+    action_counts = defaultdict(int)
+    for row in csv_data:
+        action_counts[row['best_action']] += 1
+    
+    print("\nAction distribution in learned strategy:")
+    for action, count in sorted(action_counts.items()):
+        percentage = (count / len(csv_data)) * 100
+        print(f"  {action:<8}: {count:>4,} states ({percentage:5.1f}%)")
+    
+    return filename
 
+def save_results_summary(agent, eval_results: Dict, baseline_results: Dict, 
+                        basic_strategy_results: Dict, training_stats: Dict, 
+                        filepath: str = 'results_summary.txt'):
+    """Save a comprehensive summary of results to file"""
+    
     with open(filepath, 'w') as f:
         f.write("BLACKJACK MONTE CARLO SIMULATION RESULTS\n")
         f.write("="*50 + "\n\n")
@@ -281,11 +339,11 @@ def save_results_summary(
         # Performance comparison
         f.write("PERFORMANCE COMPARISON\n")
         f.write("-"*25 + "\n")
-        f.write(f"{'Metric':<20} {'Trained Agent':<15} {'Random Baseline':<15}\n")
-        f.write("-"*50 + "\n")
-        f.write(f"{'Win Rate':<20} {eval_results['win_rate']:<15.4f} {baseline_results['win_rate']:<15.4f}\n")
-        f.write(f"{'Avg Reward':<20} {eval_results['avg_reward']:<15.4f} {baseline_results['avg_reward']:<15.4f}\n")
-        f.write(f"{'Std Reward':<20} {eval_results['std_reward']:<15.4f} {baseline_results['std_reward']:<15.4f}\n\n")
+        f.write(f"{'Metric':<20} {'Trained Agent':<15} {'Basic Strategy':<15} {'Random Baseline':<15}\n")
+        f.write("-"*65 + "\n")
+        f.write(f"{'Win Rate':<20} {eval_results['win_rate']:<15.4f} {basic_strategy_results['win_rate']:<15.4f} {baseline_results['win_rate']:<15.4f}\n")
+        f.write(f"{'Avg Reward':<20} {eval_results['avg_reward']:<15.4f} {basic_strategy_results['avg_reward']:<15.4f} {baseline_results['avg_reward']:<15.4f}\n")
+        f.write(f"{'Std Reward':<20} {eval_results['std_reward']:<15.4f} {basic_strategy_results['std_reward']:<15.4f} {baseline_results['std_reward']:<15.4f}\n\n")
         
         # Action distribution
         f.write("ACTION DISTRIBUTION\n")
