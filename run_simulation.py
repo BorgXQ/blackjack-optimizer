@@ -292,17 +292,6 @@ def main():
         print(f"\nBasic Strategy vs Random:")
         print(f"  Win Rate:   {basic_vs_random_wr:+6.2f}%")
         print(f"  Avg Reward: {basic_vs_random_reward:+6.2f}%")
-    
-    # Show sample of learned policies
-    print("\n" + "=" * 60)
-    print("TRAINED AGENT POLICY SAMPLE")
-    print("=" * 60)
-    trained_agent.print_policy_sample(15)
-    
-    print("\n" + "=" * 60)
-    print("BASIC STRATEGY AGENT POLICY SAMPLE")
-    print("=" * 60)
-    basic_agent.print_policy_sample(15)
 
     # Export learned strategy to CSV
     trained_filename = export_learned_strategy_csv(trained_agent, "trained_strategy.csv")
