@@ -1,8 +1,8 @@
 import numpy as np
-from blackjack_rl_env import BlackjackRLEnv
-from monte_carlo_agent import MonteCarloAgent
-from basic_strategy_agent import BasicStrategyAgent
-from config import (
+from blackjack_sim.blackjack_rl_env import BlackjackRLEnv
+from blackjack_sim.monte_carlo_agent import MonteCarloAgent
+from blackjack_sim.basic_strategy_agent import BasicStrategyAgent
+from blackjack_sim.config import (
     TRAINING_EPISODES,
     EVALUATION_EPISODES,
     BASELINE_EPISODES,
@@ -10,7 +10,7 @@ from config import (
     EPSILON_DECAY,
     LOG_INTERVAL
 )
-from utils import (
+from blackjack_sim.utils import (
     plot_training_progress,
     analyze_policy,
     print_statistics,
@@ -26,7 +26,7 @@ def train_agent(
     epsilon: float=EPSILON,
     epsilon_decay: float=EPSILON_DECAY,
     save_model: bool=True,
-    model_path: str="trained_agent.pkl",
+    model_path: str="./model_data/trained_agent.pkl",
     log_interval: int=LOG_INTERVAL
 ):
     """Train the Monte Carlo agent"""
@@ -100,7 +100,7 @@ def train_basic_strategy_agent(
     starting_balance: int=100000000,
     fixed_bet: int=10,
     save_model: bool=True,
-    model_path: str="basic_strategy_agent.pkl",
+    model_path: str="./model_data/basic_strategy_agent.pkl",
     log_interval: int=LOG_INTERVAL
 ):
     """Train Basic Strategy agent Q-values through simulation"""
