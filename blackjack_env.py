@@ -175,7 +175,7 @@ class BlackjackGame:
     
     def double_down(self, hand_index: int=0) -> bool:
         """Doubles down on a hand"""
-        if not self.can_double_down():
+        if not self.can_double_down(hand_index):
             return False
         
         # Double bet for hand
