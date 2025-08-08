@@ -56,7 +56,7 @@ def plot_training_progress(training_stats: Dict):
     
     plt.tight_layout()
     plt.savefig('training_progress.png', dpi=150, bbox_inches='tight')
-    plt.show()
+    # plt.show()
 
 def print_statistics(results: Dict):
     """Print formatted evaluation statistics"""
