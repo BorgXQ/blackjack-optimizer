@@ -289,7 +289,7 @@ def export_learned_strategy_csv(agent, filename: str = "learned_blackjack_strate
                 'can_split': can_split,
                 'can_double': can_double,
                 'best_action': best_action_name,
-                'success_likelihood': round(success_likelihood, 4)
+                'ev': round(success_likelihood, 4)
             })
     
     # Sort by state components for better readability
@@ -298,7 +298,7 @@ def export_learned_strategy_csv(agent, filename: str = "learned_blackjack_strate
     
     # Write to CSV
     fieldnames = ['player_sum', 'dealer_visible', 'usable_ace', 'can_split', 
-                  'can_double', 'best_action', 'success_likelihood']
+                  'can_double', 'best_action', 'ev']
     
     with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
