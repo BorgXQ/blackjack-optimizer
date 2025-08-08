@@ -131,7 +131,7 @@ def train_basic_strategy_agent(
     
     return basic_agent
 
-def evaluate_agent(
+def evaluate_trained_agent(
     agent: MonteCarloAgent, 
     env: BlackjackRLEnv, 
     num_episodes: int=EVALUATION_EPISODES
@@ -139,7 +139,7 @@ def evaluate_agent(
     """Evaluate the trained agent"""
     
     print("\n" + "=" * 60)
-    print("AGENT EVALUATION")
+    print("TRAINED AGENT EVALUATION")
     print("=" * 60)
     
     start_time = time.time()
@@ -245,7 +245,7 @@ def main():
     )
     
     # Evaluate the agents
-    trained_results = evaluate_agent(trained_agent, env, EVALUATION_EPISODES)
+    trained_results = evaluate_trained_agent(trained_agent, env, EVALUATION_EPISODES)
     basic_results = evaluate_basic_strategy_agent(basic_agent, env, EVALUATION_EPISODES)
     
     # Run baseline comparison
