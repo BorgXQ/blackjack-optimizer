@@ -2,7 +2,7 @@ import numpy as np
 import random
 from collections import defaultdict
 from typing import Tuple, List, Dict
-from config import EPSILON, EPSILON_DECAY, EPSILON_MIN
+from blackjack_sim.config import EPSILON, EPSILON_DECAY, EPSILON_MIN
 import pickle
 
 

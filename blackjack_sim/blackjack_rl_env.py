@@ -1,5 +1,5 @@
 from typing import Tuple, List, Dict
-from blackjack_env import BlackjackGame, Hand
+from blackjack_sim.blackjack_env import BlackjackGame, Hand
 
 
 class BlackjackRLEnv:
