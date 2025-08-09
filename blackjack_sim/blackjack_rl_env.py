@@ -79,7 +79,7 @@ class BlackjackRLEnv:
             else:
                 total += card.value()
 
-        if aces > 0 and total + aces + 10 <= 21:
+        if aces > 0 and total + 10 <= 21:
             return True
         return False
     

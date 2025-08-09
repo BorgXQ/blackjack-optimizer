@@ -80,7 +80,7 @@ class Hand:
         total += aces
 
         # Adjust for Aces if bust
-        if aces > 0 and total+10 <= 21:
+        if aces > 0 and total + 10 <= 21:
             total += 10
 
         return total
