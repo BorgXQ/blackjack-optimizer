@@ -37,10 +37,16 @@ python blackjack_game.py
 
 ### Run Simulation
 
-The bread and butter of this project is the simulated blackjack environment that runs for many episodes while the reinforcement learning model learns the "best" outcomes. To execute this, simply run the following:
+The second part of this project is the simulated blackjack environment that runs for many episodes while the reinforcement learning model learns the "best" outcomes. This creates a single instance of a working trained model that gives a near-optimal blackjack play. To execute this, simply run the following:
 
 ```bash
 python run_simulation.py
+```
+
+The following code generates multiple instances of the run above:
+
+```bash
+python batch_runner.py --runs 25
 ```
 
 ## Results
