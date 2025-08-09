@@ -94,6 +94,10 @@ class BlackjackRLEnv:
         if current_hand.is_busted():
             return []
         
+        # If hand is 21, no actions available
+        if current_hand.get_value() == 21:
+            return []
+
         valid_actions = [0, 1]  # Hit and Stand
 
         # Check if split is available
