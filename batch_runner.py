@@ -301,7 +301,6 @@ class BlackjackBatchRunner:
         # Save JSON summary
         json_path = os.path.join(self.run_dir, "summary", "complete_summary.json")
         with open(json_path, 'w') as f:
-            print(self.results_summary)
             json.dump(self.results_summary, f, indent=2, default=str)
         
         # Generate human-readable summary report
