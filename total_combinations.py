@@ -4,35 +4,41 @@ import csv
 dealer_visible_values = list(range(1, 11))
 
 # Predefined valid (player_sum, usable_ace, can_split, can_double) combinations
+# Remember that ace values are ALWAYS 11 unless player_sum busts if 11 then 1
 combinations = []
 
-# player_sum = 2
-combinations.append((2, True, True, True))
-
 # player_sum = 3
-combinations.append((3, True, False, True))
 combinations.append((3, False, False, False))
 
 # player_sum = 4
 combinations.append((4, False, True, True))
-combinations.append((4, True, False, True))
 combinations.append((4, False, False, False))
 
 # player_sum = 5
-combinations.append((5, True, False, True))
 combinations.append((5, False, False, True))
 combinations.append((5, False, False, False))
 
-# Even player_sum from 6 to 20 (5 combinations each)
-for s in range(6, 21, 2):
+# Even player_sum from 6 to 10 (3 combinations each)
+for s in range(6, 11, 2):
+    combinations.append((s, False, True, True))   # Same value pair
+    combinations.append((s, False, False, True))  # Different 2-card no ace
+    combinations.append((s, False, False, False)) # >2-card no ace
+
+# Odd player_sum from 7 to 11 (2 combinations each)
+for s in range(7, 12, 2):
+    combinations.append((s, False, False, True))  # 2-card no ace
+    combinations.append((s, False, False, False)) # >2-card no ace
+
+# Even player_sum from 12 to 20 (5 combinations each)
+for s in range(12, 21, 2):
     combinations.append((s, False, True, True))   # Same value pair
     combinations.append((s, False, False, True))  # Different 2-card no ace
     combinations.append((s, True, False, True))   # 2-card with ace
     combinations.append((s, True, False, False))  # >2-card with ace
     combinations.append((s, False, False, False)) # >2-card no ace
 
-# Odd player_sum from 7 to 19 (4 combinations each)
-for s in range(7, 20, 2):
+# Odd player_sum from 13 to 19 (4 combinations each)
+for s in range(13, 20, 2):
     combinations.append((s, True, False, True))   # 2-card with ace
     combinations.append((s, False, False, True))  # 2-card no ace
     combinations.append((s, True, False, False))  # >2-card with ace
