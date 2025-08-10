@@ -1,7 +1,7 @@
 import csv
 
 # Range of dealer_visible values
-dealer_visible_values = list(range(1, 11))
+dealer_visible_values = list(range(2, 12))
 
 # Predefined valid (player_sum, usable_ace, can_split, can_double) combinations
 # Remember that ace values are ALWAYS 11 unless player_sum busts if 11 then 1
