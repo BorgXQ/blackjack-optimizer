@@ -1,7 +1,7 @@
 import csv
 
 # Range of dealer_visible values
-dealer_visible_values = list(range(2, 12))
+dealer_visible_values = list(range(1, 11))
 
 # Predefined valid (player_sum, usable_ace, can_split, can_double) combinations
 combinations = []
@@ -37,6 +37,11 @@ for s in range(7, 20, 2):
     combinations.append((s, False, False, True))  # 2-card no ace
     combinations.append((s, True, False, False))  # >2-card with ace
     combinations.append((s, False, False, False)) # >2-card no ace
+
+# player_sum = 21
+combinations.append((21, True, False, True))
+combinations.append((21, True, False, False))
+combinations.append((21, False, False, False))
 
 # Expand each combination with all 10 dealer_visible values
 final_rows = []
