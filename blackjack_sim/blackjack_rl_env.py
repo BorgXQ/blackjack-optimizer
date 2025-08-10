@@ -57,7 +57,7 @@ class BlackjackRLEnv:
             self.current_hand_index == 0 and self.game.can_split()
         )
         can_double = (
-            self.game.can_double_down()
+            self.game.can_double_down(self.current_hand_index)
         )
 
         return (
