@@ -29,9 +29,11 @@ def state_representation(df: pd.DataFrame, player_values: List[int], dealer_visi
     can_double = False
     can_split = False
 
-    if 1 or 11 in player_values:
-        usable_ace = True
-        player_sum += 10 if player_sum + 10 <= 21 else 0
+    for i in player_values:
+        if i == 1 or i == 11:
+            usable_ace = True
+            player_sum += 10 if player_sum + 10 <= 21 else 0
+
     if len(player_values) == 2:
         can_double = True
         if not have_split:
