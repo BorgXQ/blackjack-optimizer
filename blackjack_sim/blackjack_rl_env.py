@@ -42,6 +42,11 @@ class BlackjackRLEnv:
             return (0, 0, False, False, False)
         
         current_hand = self.game.player_hands[self.current_hand_index]
+
+        # Ensure hand has at least 2 cards
+        if len(current_hand.cards) < 2:
+            return (0, 0, False, False, False)
+        
         player_sum = current_hand.get_value()
 
         # Get dealer's visible card
