@@ -62,8 +62,7 @@ python prediction.py --hand 3 3 --dealer 10
 # Ex2: Your cards are [7, 9] after splitting and the dealer's up-card is a 6
 python prediction.py --hand 7 9 --dealer 6 --split
 ```
-
-Running the first example, the output should be like as follows:
+After running the first example, the output should be look like the following:
 
 ```
 ------------------------------------------------------------------
