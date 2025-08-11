@@ -35,19 +35,15 @@ If you're simply trying to play blackjack against a computer, simply run the fol
 python blackjack_game.py
 ```
 
-### Run Simulation
+### Run Simulation and Analysis
 
-The second part of this project is the simulated blackjack environment that runs for many episodes while the reinforcement learning model learns the "best" outcomes. This creates a single instance of a working trained model that gives a near-optimal blackjack play. To execute this, simply run the following:
-
-```bash
-python run_simulation.py
-```
-
-The following code generates multiple instances of the run above:
+The second part of this project is the simulated blackjack environment that runs for many episodes while the reinforcement learning model learns the "best" outcomes. The following code generates multiple instances of each full training and evaluation cycles:
 
 ```bash
 python batch_runner.py --runs 25
 ```
+
+Running this is necessary to proceed with running the cells in `analysis.ipynb`.
 
 ## Results
 
