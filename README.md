@@ -80,14 +80,18 @@ It seems like you should **hit** if you have two 3s against the dealer's 10! But
 
 | **Metric** | **Combined Agent** | **Trained Agent** | **Basic Strat Baseline** | **Random Baseline** |
 |-----------|------|------|-------------|---------|
-| Winrate | 0.4102 | 0.4004 | 0.3863 | 0.2641 |
-| Avg Return | -0.1006 | -0.1223 | -0.1556 | -0.4699 |
+| Winrate | 0.4056 | 0.3992 | 0.3901 | 0.2641 |
+| Avg Return | -0.1120 | -0.1247 | -0.1489 | -0.4699 |
 
-The trained agent observes an XX% improvement compared to the basic strategy model. For average rewards, the trained agent still beats both the basic strategy. When aggregating the best actions given states learned by the trained agent and the basic strategy baseline, the resulting win rate and average return triumphs each model alone. 
+The trained agent demonstrates a 0.91 percentage point improvement in win rate compared to the basic strategy baseline while achieving a substantially better average return with a 16.3% relative improvement in losses. Both metrics significantly outperform the random baseline, with the trained agent showing 13.51 percentage points higher win rate and 73.5% better average return than random play.
+
+Most notably, the combined agent, which aggregates optimal actions from both the trained agent and basic strategy baseline, achieves the strongest performance across all metrics. This hybrid approach represents a 0.64 percentage point improvement over the trained agent alone and a 1.55 percentage point improvement over the basic strategy. For average returns, it reduces losses to -0.1120, marking a 10.2% relative improvement over the trained agent and 24.8% relative improvement over the basic strategy baseline.
+
+These results demonstrate that while the trained agent successfully learns to outperform traditional heuristics, the greatest gains emerge from intelligently combining learned strategies with established baseline approaches, suggesting that hybrid methodologies can effectively leverage the strengths of both machine learning and conventional strategic frameworks.
 
 <img src="raw/training_progress.png" alt="Plots for rewards, winrate, and epsilon decay over 1 mil episodes" width="600" style="text-align: center;"> <br>
 
-The win rate over the 1,000,000 episodes remained somewhat consistent, floating in between 42.0% and 44.0%, though not converging to a specific value. The average reward dramatically improved in the first 200,000 episodes but then stagnated for the remainder of the training period.
+The win rate over the 1,000,000 episodes remained somewhat consistent with a range between 0.3898 and 0.4095. The average reward dramatically improved in the first 200,000 episodes but then stagnated for the remainder of the training period.
 
 ## Discussion
 
