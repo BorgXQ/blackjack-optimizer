@@ -210,7 +210,11 @@ class BlackjackGame:
         hand2 = Hand()
         hand1.add_card(card1)
         hand2.add_card(card2)
-        
+
+        # Deal second card to each split hand
+        hand1.add_card(self.deck.deal_card())
+        hand2.add_card(self.deck.deal_card())
+
         # Replace original hand with split hands
         self.player_hands = [hand1, hand2]
         
