@@ -43,7 +43,39 @@ The second part of this project is the simulated blackjack environment that runs
 python batch_runner.py --runs 25
 ```
 
-Running this is necessary to proceed with running the cells in `analysis.ipynb`.
+Running this is necessary to proceed with running the cells in `analysis.ipynb`. However, before that, you must also run the following script, which initializes a CSV file containing all the supposed possible combinations given the constraints put forth in the project scope:
+
+```bash
+python total_combinations.py
+```
+
+After running the two CLI commands above, you can get run all the cells in `analysis.ipynb`. Aside from analyses, the script aggregates the best action-state combinations between the trained agent and basic strategy, creating a new CSV file with which you can perform optimal Blackjack action predictions with.
+
+### Run Prediction
+
+Once you have run `analysis.ipynb`, you can run predictions using the following format:
+
+```bash
+# Ex1: Your cards are [3, 3] and the dealer's up-card is a 10
+python prediction.py --hand 3 3 --dealer 10
+
+# Ex2: Your cards are [7, 9] after splitting and the dealer's up-card is a 6
+python prediction.py --hand 7 9 --dealer 6 --split
+```
+
+Running the first example, the output should be like as follows:
+
+```
+------------------------------------------------------------------
+    player_sum  dealer_visible  usable_ace  can_split  can_double
+56           6              10       False       True        True
+------------------------------------------------------------------
+Best Action: Hit
+EV: -0.541377
+Source: basic, trained
+```
+
+It seems like you should **hit** if you have two 3s against the dealer's 10! But sadly, even the best action yields a heart-wrenching expected return of -0.54 per unit bet. Such is the nature of casino gambling.
 
 ## Results
 
