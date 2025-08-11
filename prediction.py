@@ -10,6 +10,7 @@ import pandas as pd
 import argparse
 from typing import List, Tuple
 
+
 def state_representation(df: pd.DataFrame, player_values: List[int], dealer_visible: int, have_split: bool) -> Tuple[str, str, str]:
     for i in player_values:
         if i > 11:
