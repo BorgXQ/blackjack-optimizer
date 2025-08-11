@@ -47,12 +47,12 @@ Running this is necessary to proceed with running the cells in `analysis.ipynb`.
 
 ## Results
 
-| **Metric** | **Trained Agent** | **Basic Strat Baseline** | **Random Baseline** |
-|-----------|------|-------------|---------|
-| Winrate | 0.4330 | 0.4338 | 0.2934 |
-| Avg Return | -0.0449 | -0.0417 | -0.4107 |
+| **Metric** | **Combined Agent** | **Trained Agent** | **Basic Strat Baseline** | **Random Baseline** |
+|-----------|------|------|-------------|---------|
+| Winrate | 0.4102 | 0.4004 | 0.3863 | 0.2641 |
+| Avg Return | -0.1006 | -0.1223 | -0.1556 | -0.4699 |
 
-The trained agent observes a 47.6% improvement compared to the random baseline, but not as much as the 47.9% improvement by implementing the basic strategy in terms of win rate. For average rewards, the basic strategy still somewhat beats the trained agent, reaching an 89.1% improvement compared to the random baseline, with the trained model sitting at an 89.9% improvement.
+The trained agent observes an XX% improvement compared to the basic strategy model. For average rewards, the trained agent still beats both the basic strategy. When aggregating the best actions given states learned by the trained agent and the basic strategy baseline, the resulting win rate and average return triumphs each model alone. 
 
 <img src="raw/training_progress.png" alt="Plots for rewards, winrate, and epsilon decay over 1 mil episodes" width="600" style="text-align: center;"> <br>
 
