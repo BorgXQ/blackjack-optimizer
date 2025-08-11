@@ -7,16 +7,11 @@ dealer_visible_values = list(range(2, 12))
 # Remember that ace values are ALWAYS 11 unless player_sum busts if 11 then 1
 combinations = []
 
-# player_sum = 3
-combinations.append((3, False, False, False))
-
 # player_sum = 4
 combinations.append((4, False, True, True))
-combinations.append((4, False, False, False))
 
 # player_sum = 5
 combinations.append((5, False, False, True))
-combinations.append((5, False, False, False))
 
 # Even player_sum from 6 to 10 (3 combinations each)
 for s in range(6, 11, 2):
@@ -43,11 +38,6 @@ for s in range(13, 20, 2):
     combinations.append((s, False, False, True))  # 2-card no ace
     combinations.append((s, True, False, False))  # >2-card with ace
     combinations.append((s, False, False, False)) # >2-card no ace
-
-# player_sum = 21
-combinations.append((21, True, False, True))
-combinations.append((21, True, False, False))
-combinations.append((21, False, False, False))
 
 # Expand each combination with all 10 dealer_visible values
 final_rows = []
