@@ -111,8 +111,4 @@ For action selection, the agent employs **$\epsilon$-greedy exploration** combin
 
 ## Conclusion
 
-You have practically negative edge in Blackjack even when your strategy is heavily optimized. But if you're going to play anyway, here's a motivation:
-
-[St. Petersburg paradox](https://en.wikipedia.org/wiki/St._Petersburg_paradox) says that the expected values in these games should be infinite, but in actuality, they aren't because they account for extremely rare events (like *absurdly impossible* events). But who's to say you're not going to be that one in a quintillion gambler who wins a thousand times in a row? After all, highly improbable ≠ impossible. It's not delusion; it's being risk-loving!
-
-On a serious note, understand bankroll management and don't gamble what you can't afford to lose.
+You have practically negative edge in Blackjack even when your strategy is heavily optimized. A risk-averse and risk-neutral person would never prefer to engage in the game. However, if you still choose to play anyway, remember to understand bankroll management and don't gamble what you can't afford to lose.
