@@ -2,7 +2,7 @@
 
 Blackjack is one of the very few casino games I actually knew the rules of. Basically, you try to beat the dealer through a series of "hitting" and "standing" actions, doing your best to obtain a total higher than the dealer's but not over 21 (this is a bust). The casino always has the winning edge, but this project aims to see how far we, as the players, can get to even the playfield a little.
 
-Sutton and Barto's book on reinforcement learning was my main source of inspiration to build this model, specifically all the logic behind it. Essentially, I assume several conditions, simulate the blackjack environment, and see how much better the trained model performs compared to the mathematically derived basic strategy and a random baseline.
+Sutton and Barto's book on reinforcement learning was my main source of inspiration to build this model, specifically all the logic behind it. Essentially, I assume several conditions, simulate the Blackjack environment, and see how much better the trained model performs compared to the mathematically derived basic strategy and a random baseline.
 
 ## Installation
 
@@ -29,7 +29,7 @@ pip install -r requirements.txt
 
 ### Play Blackjack
 
-If you're simply trying to play blackjack against a computer, simply run the following:
+If you're simply trying to play Blackjack against a computer, simply run the following:
 
 ```bash
 python blackjack_game.py
@@ -37,7 +37,7 @@ python blackjack_game.py
 
 ### Run Simulation and Analysis
 
-The second part of this project is the simulated blackjack environment that runs for many episodes while the reinforcement learning model learns the "best" outcomes. The following code generates multiple instances of each full training and evaluation cycles:
+The second part of this project is the simulated Blackjack environment that runs for many episodes while the reinforcement learning model learns the "best" outcomes. The following code generates multiple instances of each full training and evaluation cycles:
 
 ```bash
 python batch_runner.py --runs 25
@@ -93,13 +93,25 @@ These results demonstrate that while the trained agent successfully learns to ou
 
 The win rate over the 1,000,000 episodes remained somewhat consistent with a range between 0.3898 and 0.4095. The average reward dramatically improved in the first 200,000 episodes but then stagnated for the remainder of the training period.
 
-## Discussion
+## Agent Detail
 
-The discussion portion of the project is under construction. Stay tuned!
+The implemented agent represents a **model-free, on-policy Monte Carlo (MC) method** for learning optimal Blackjack strategy. For this agent to function effectively, the Blackjack environment must satisfy the *Markov property*—meaning the current state contains all necessary information to make optimal decisions without requiring knowledge of previous states. This formulation creates a *Markov Decision Process* where future outcomes depend only on the current state and chosen action, not the sequence of past events that led to the current situation.
+
+The agent implements the **every-visit MC** method for policy evaluation and improvement that updates *Q-values* for every occurrence of a state-action pair within an episode. The fundamental equation being approximated is
+
+$$
+Q\left(s,a\right)\approx E\left[G_t|S_t=s,A_t=a\right]
+$$
+
+where $G_t$ is the return (i.e., cumulative discounted reward) from time $t$ onward.
+
+As defined in `blackjack_rl_env.py`, the agent uses a 5-tuple state representation (`player_sum`, `dealer_visible`, `usable_ace`, `can_split`, and `can_double`) to capture the relevant information for decision-making. A Q-table stores the Q-values, which are the expected total returns for each state-action combination. As the agent progresses through episodes, these Q-values are continuously refined through temporal backpropagation of returns. This process works by analyzing completed episodes backwards in time, accumulating rewards ($G=G\gamma+r$) to calculate the total return from each decision point. Here, $\gamma=1.0$, meaning no discounting is applied since Blackjack is an episodic game where all rewards within an episode are equally important regardless of timing. These returns are then used to update the Q-values through sample averaging, gradually improving the agent’s understanding of action quality.
+
+For action selection, the agent employs **$\epsilon$-greedy exploration** combined with **action masking**. During training, $\epsilon$-greedy strategically balances exploration (i.e., discovering potentially superior actions) with exploitation of current knowledge embedded in the optimized Q-values. The $\epsilon$ parameter *decays over time*, gradually shifting focus from exploration to exploitation. Meanwhile, action masking ensures the agent only considers valid moves for each state, preventing illegal actions that would result in negative rewards.
 
 ## Conclusion
 
-You have practically near-zero edge in blackjack even when your strategy is heavily optimized. But if you're going to play anyway, here's a motivation:
+You have practically negative edge in Blackjack even when your strategy is heavily optimized. But if you're going to play anyway, here's a motivation:
 
 [St. Petersburg paradox](https://en.wikipedia.org/wiki/St._Petersburg_paradox) says that the expected values in these games should be infinite, but in actuality, they aren't because they account for extremely rare events (like *absurdly impossible* events). But who's to say you're not going to be that one in a quintillion gambler who wins a thousand times in a row? After all, highly improbable ≠ impossible. It's not delusion; it's being risk-loving!
 
