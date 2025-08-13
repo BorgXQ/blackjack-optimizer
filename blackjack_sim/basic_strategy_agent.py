@@ -35,7 +35,7 @@ class BasicStrategyAgent:
         # If we can split, check split conditions first
         if can_split and 2 in valid_actions:
             # Always split Aces and 8s
-            if player_sum == 22 or player_sum == 16:  # AA=22, 88=16
+            if player_sum == 12 or player_sum == 16:  # AA=12, 88=16
                 return 2  # Split
             # Split 2s, 3s, 6s, 7s, 9s against certain dealer cards
             if player_sum == 4 and 4 <= dealer_visible <= 7:  # 22
