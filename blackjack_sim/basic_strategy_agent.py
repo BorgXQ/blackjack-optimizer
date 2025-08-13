@@ -80,6 +80,11 @@ class BasicStrategyAgent:
                     return 1  # Stand
                 else:
                     return 0  # Hit
+            elif player_sum == 12: # AA
+                if dealer_visible == 6:
+                    return 3  # Double
+                else:
+                    return 0  # Hit
             else:  # A2-A6
                 return 0  # Hit
         else:  # Hard totals
