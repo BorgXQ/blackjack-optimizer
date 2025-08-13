@@ -17,7 +17,7 @@ class Card:
         if self.rank in ['J', 'Q', 'K']:
             return 10
         if self.rank == 'A':
-            return 11 # Initialize to 11, adjusted later
+            return 1 # Initialize to 1, adjusted later
         else:
             return int(self.rank)
 
