@@ -56,8 +56,8 @@ After running the two CLI commands above, you can get run all the cells in `anal
 Once you have run `analysis.ipynb`, you can run predictions using the following format:
 
 ```bash
-# Ex1: Your cards are [3, 3] and the dealer's up-card is a 10
-python prediction.py --hand 3 3 --dealer 10
+# Ex1: Your cards are [9, 9] and the dealer's up-card is a 8
+python prediction.py --hand 9 9 --dealer 8
 
 # Ex2: Your cards are [7, 9] after splitting and the dealer's up-card is a 6
 python prediction.py --hand 7 9 --dealer 6 --split
@@ -66,15 +66,15 @@ After running the first example, the output should be look like the following:
 
 ```
 ------------------------------------------------------------------
-    player_sum  dealer_visible  usable_ace  can_split  can_double
-56           6              10       False       True        True
+     player_sum  dealer_visible  usable_ace  can_split  can_double
+497          18               8       False       True        True
 ------------------------------------------------------------------
-Best Action: Hit
-EV: -0.541377
+Best Action: Split
+EV: 0.10632
 Source: basic, trained
 ```
 
-It seems like you should **hit** if you have two 3s against the dealer's 10! But sadly, even the best action yields a heart-wrenching expected return of -0.54 per unit bet. Such is the nature of casino gambling.
+According to the agent, in general, splitting 9s against a dealer's 8 leads to a positive return of 0.10632 per unit bet.
 
 ## Results
 
