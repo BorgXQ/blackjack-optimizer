@@ -1,4 +1,5 @@
 import csv
+import os
 
 # Range of dealer_visible values
 dealer_visible_values = list(range(1, 11))
@@ -54,6 +55,8 @@ for combo in combinations:
 
 # Write to CSV
 csv_filename = "./csv/blackjack_states.csv"
+if not os.path.exists(os.path.dirname(csv_filename)):
+    os.makedirs(os.path.dirname(csv_filename))
 with open(csv_filename, mode='w', newline='') as file:
     writer = csv.DictWriter(file, fieldnames=['player_sum', 'dealer_visible', 'usable_ace', 'can_split', 'can_double'])
     writer.writeheader()
