@@ -73,7 +73,7 @@ def main():
 
     df = pd.read_csv(args.csv)
     action, ev, source = state_representation(df, args.hand, args.dealer, args.split)
-    print(f"Best Action: {action}\nEV: {ev}\nSource: {source}\n")
+    print(f"Best Action: {action}\nEV: {ev:.5f}\nSource: {source}\n")
 
 
 if __name__ == "__main__":
