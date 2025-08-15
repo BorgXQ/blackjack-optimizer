@@ -9,7 +9,7 @@ This project aims to close the gap between the house edge and player's expected 
 ### Blackjack Environment
 
 Basic Blackjack rules apply. Since tables and casinos may have varying rules for Blackjack, it is important that we lay out the rules the simulation in this project follows:
-1. The playing deck starts with 6 card decks (each containing 52 distinct cards) and is reshuffled and reset after 2 decks' worth of cards are drawn
+1. The playing deck starts with six card decks (each containing 52 distinct cards) and is reshuffled and reset after two decks' worth of cards are drawn
 2. The dealer stands on soft 17
 3. The player can double down a hand at any point as long as they have exactly two cards in that hand
 4. The player cannot split a hand that has been split previously
