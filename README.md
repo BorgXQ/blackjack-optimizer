@@ -1,8 +1,40 @@
 ## Project Statement
 
-Blackjack is one of the very few casino games I actually knew the rules of. Basically, you try to beat the dealer through a series of "hitting" and "standing" actions, doing your best to obtain a total higher than the dealer's but not over 21 (this is a bust). The casino always has the winning edge, but this project aims to see how far we, as the players, can get to even the playfield a little.
+This project aims to close the gap between the house edge and player's expected probability of winning. To do this, we look at the mathematically derived best way to play Blackjack: the basic strategy. This strategy outlines the best actions (out of hitting, standing, splitting, and doubling down) the player should take given their total hand value, whether they have aces, whether they can double, and the dealer's up-card. Then, we train a better model to play more optimally than this strategy. Therefore, the overarchiing hypothesis for this project is as follows:
 
-Sutton and Barto's book on reinforcement learning was my main source of inspiration to build this model, specifically all the logic behind it. Essentially, I assume several conditions, simulate the Blackjack environment, and see how much better the trained model performs compared to the mathematically derived basic strategy and a random baseline.
+*There is a better defined strategy than the basic strategy that improves its win rate and average returns.*
+
+## Technical Details
+
+### Blackjack Environment
+
+Basic Blackjack rules apply. Since tables and casinos may have varying rules for Blackjack, it is important that we lay out the rules the simulation in this project follows:
+1. The playing deck starts with 6 card decks (each containing 52 distinct cards) and is reshuffled and reset after 2 decks' worth of cards are drawn
+2. The dealer stands on soft 17
+3. The player can double down a hand at any point as long as they have exactly two cards in that hand
+4. The player cannot split a hand that has been split previously
+
+We consider the environment *Markovian*—meaning the current state contains all necessary information to make optimal decisions without requiring knowledge of previous states. This formulation creates a *Markov Decision Process* where future outcomes depend only on the current state and chosen action, not the sequence of past events that led to the current situation. Intuitively, this is true for Blackjack.
+
+### Trained Agent
+
+To validate the hypothesis, we implement an agent that represents a **model-free, on-policy Monte Carlo (MC) method** for learning optimal Blackjack strategy. The agent implements the **every-visit MC** method for policy evaluation and improvement that updates *Q-values* for every occurrence of a state-action pair within an episode. The fundamental equation being approximated is
+
+$$
+Q\left(s,a\right)\approx E\left[G_t|S_t=s,A_t=a\right]
+$$
+
+where $G_t$ is the return (i.e., cumulative discounted reward) from time $t$ onward.
+
+As defined in `blackjack_rl_env.py`, the agent uses a 5-tuple state representation (`player_sum`, `dealer_visible`, `usable_ace`, `can_split`, and `can_double`) to capture the relevant information for decision-making. A Q-table stores the Q-values, which are the expected total returns for each state-action combination. As the agent progresses through episodes, these Q-values are continuously refined through temporal backpropagation of returns. This process works by analyzing completed episodes backwards in time, accumulating rewards ($G=G\gamma+r$) to calculate the total return from each decision point. Here, $\gamma=1.0$, meaning no discounting is applied since Blackjack is an episodic game where all rewards within an episode are equally important regardless of timing. These returns are then used to update the Q-values through sample averaging, gradually improving the agent’s understanding of action quality.
+
+For action selection, the agent employs **$\epsilon$-greedy exploration** combined with **action masking**. During training, $\epsilon$-greedy strategically balances exploration (i.e., discovering potentially superior actions) with exploitation of current knowledge embedded in the optimized Q-values. The $\epsilon$ parameter *decays over time*, gradually shifting focus from exploration to exploitation. Meanwhile, action masking ensures the agent only considers valid moves for each state, preventing illegal actions that would result in negative rewards.
+
+<img src="raw/trained_vs_bs_box.png" alt="Plots for rewards, winrate, and epsilon decay over 1 mil episodes" width="600" style="text-align: center;"> <br>
+
+### Combined Agent
+
+There is no perfect model. Since the trained
 
 ## Installation
 
@@ -92,22 +124,6 @@ These results demonstrate that while the trained agent successfully learns to ou
 <img src="raw/training_progress.png" alt="Plots for rewards, winrate, and epsilon decay over 1 mil episodes" width="600" style="text-align: center;"> <br>
 
 The win rate over the 1,000,000 episodes remained somewhat consistent with a range between 0.3898 and 0.4095. The average reward dramatically improved in the first 200,000 episodes but then stagnated for the remainder of the training period.
-
-## Agent Detail
-
-The implemented agent represents a **model-free, on-policy Monte Carlo (MC) method** for learning optimal Blackjack strategy. For this agent to function effectively, the Blackjack environment must satisfy the *Markov property*—meaning the current state contains all necessary information to make optimal decisions without requiring knowledge of previous states. This formulation creates a *Markov Decision Process* where future outcomes depend only on the current state and chosen action, not the sequence of past events that led to the current situation.
-
-The agent implements the **every-visit MC** method for policy evaluation and improvement that updates *Q-values* for every occurrence of a state-action pair within an episode. The fundamental equation being approximated is
-
-$$
-Q\left(s,a\right)\approx E\left[G_t|S_t=s,A_t=a\right]
-$$
-
-where $G_t$ is the return (i.e., cumulative discounted reward) from time $t$ onward.
-
-As defined in `blackjack_rl_env.py`, the agent uses a 5-tuple state representation (`player_sum`, `dealer_visible`, `usable_ace`, `can_split`, and `can_double`) to capture the relevant information for decision-making. A Q-table stores the Q-values, which are the expected total returns for each state-action combination. As the agent progresses through episodes, these Q-values are continuously refined through temporal backpropagation of returns. This process works by analyzing completed episodes backwards in time, accumulating rewards ($G=G\gamma+r$) to calculate the total return from each decision point. Here, $\gamma=1.0$, meaning no discounting is applied since Blackjack is an episodic game where all rewards within an episode are equally important regardless of timing. These returns are then used to update the Q-values through sample averaging, gradually improving the agent’s understanding of action quality.
-
-For action selection, the agent employs **$\epsilon$-greedy exploration** combined with **action masking**. During training, $\epsilon$-greedy strategically balances exploration (i.e., discovering potentially superior actions) with exploitation of current knowledge embedded in the optimized Q-values. The $\epsilon$ parameter *decays over time*, gradually shifting focus from exploration to exploitation. Meanwhile, action masking ensures the agent only considers valid moves for each state, preventing illegal actions that would result in negative rewards.
 
 ## Conclusion
 
