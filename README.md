@@ -30,7 +30,9 @@ As defined in `blackjack_rl_env.py`, the agent uses a 5-tuple state representati
 
 For action selection, the agent employs **$\epsilon$-greedy exploration** combined with **action masking**. During training, $\epsilon$-greedy strategically balances exploration (i.e., discovering potentially superior actions) with exploitation of current knowledge embedded in the optimized Q-values. The $\epsilon$ parameter *decays over time*, gradually shifting focus from exploration to exploitation. Meanwhile, action masking ensures the agent only considers valid moves for each state, preventing illegal actions that would result in negative rewards.
 
-<img src="raw/trained_vs_bs_box.png" alt="Plots for rewards, winrate, and epsilon decay over 1 mil episodes" width="600" style="text-align: center;"> <br>
+<div style="text-align: center;">
+    <img src="raw/trained_vs_bs_box.png" alt="Plots for winrate and average reward over 25 runs with 1 mil episodes each" width="600">
+</div>
 
 ### Combined Agent
 
