@@ -14,6 +14,8 @@ Basic Blackjack rules apply. Since tables and casinos may have varying rules for
 3. The player can double down a hand at any point as long as they have exactly two cards in that hand
 4. The player cannot split a hand that has been split previously
 
+In total, without including the restrictions set by the basic strategy model, there are 600 unique combinations of states: `player_sum`, `dealer_visible`, `usable_ace`, `can_split`, and `can_double`.
+
 We consider the environment *Markovian*—meaning the current state contains all necessary information to make optimal decisions without requiring knowledge of previous states. This formulation creates a *Markov Decision Process* where future outcomes depend only on the current state and chosen action, not the sequence of past events that led to the current situation. Intuitively, this is true for Blackjack.
 
 ### Trained Agent
@@ -34,9 +36,24 @@ For action selection, the agent employs **$\epsilon$-greedy exploration** combin
     <img src="raw/trained_vs_bs_box.png" alt="Plots for winrate and average reward over 25 runs with 1 mil episodes each" width="600">
 </div>
 
+The trained agent, basic strategy model, and a random baseline model are run over 25 stochastic simulations, each with 1 million episodes. The distribution of the averaged winrates and rewards for each of the runs for the trained agent and the basic strategy model are compared above. It is clear that the trained agent plays Blackjack statistically more optimally than the basic strategy model.
+
 ### Combined Agent
 
-There is no perfect model. Since the trained
+Although the hypothesis has been broadly validated, we now turn to a deeper analysis of the agents. Out of the 600 possible state combinations, we focus on where the trained agent and the basic strategy model agree on the same action. To explore this, we construct a combined agent that selects the optimal action on a state-by-state basis, recording which model each chosen action originates from.
+
+| **Metric** | **Combined Agent** | **Trained Agent** | **Basic Strat Baseline** | **Random Baseline** |
+|-----------|------|------|-------------|---------|
+| Winrate | 0.4081 | 0.3987 | 0.3891 | 0.2696 |
+| Avg Return | -0.1097 | -0.1265 | -0.1512 | -0.4589 |
+
+The combined agent consistently outperforms all baselines, achieving the highest win rate and the best (least negative) average return. Compared to the trained agent alone, the combined approach yields a 0.94 percentage point gain in win rate and a 13.3% relative improvement in average return. Against the basic strategy model, these improvements grow to 1.90 percentage points and 27.4%, respectively.
+
+<div style="text-align: center;">
+    <img src="raw/ca_source_pie.png" alt="Pie plot for comparison between sources in combined agent" width="600">
+</div>
+
+The pie chart highlights where these gains come from. Rather than relying solely on the trained agent, the combined approach leverages the strengths of both strategies—selecting the best action for each state. Interestingly, just 2.8% of the combined agent’s actions come from the basic strategy model, yet these contributions are precisely what drive the observed performance boost.
 
 ## Installation
 
@@ -112,14 +129,9 @@ According to the agent, in general, splitting 9s against a dealer's 8 leads to a
 
 ## Results
 
-| **Metric** | **Combined Agent** | **Trained Agent** | **Basic Strat Baseline** | **Random Baseline** |
-|-----------|------|------|-------------|---------|
-| Winrate | 0.4081 | 0.3987 | 0.3891 | 0.2696 |
-| Avg Return | -0.1097 | -0.1265 | -0.1512 | -0.4589 |
-
 The trained agent demonstrates a 0.96 percentage point improvement in win rate compared to the basic strategy baseline while achieving a substantially better average return with a 16.3% relative improvement in losses. Both metrics significantly outperform the random baseline, with the trained agent showing 12.91 percentage points higher win rate and 72.4% better average return than random play.
 
-Most notably, the combined agent, which aggregates optimal actions from both the trained agent and basic strategy baseline, achieves the strongest performance across all metrics. This hybrid approach represents a 0.94 percentage point improvement over the trained agent alone and a 1.90 percentage point improvement over the basic strategy. For average returns, it reduces losses to -0.1097, marking a 13.3% relative improvement over the trained agent and 27.4% relative improvement over the basic strategy baseline.
+
 
 These results demonstrate that while the trained agent successfully learns to outperform traditional heuristics, the greatest gains emerge from intelligently combining learned strategies with established baseline approaches, suggesting that hybrid methodologies can effectively leverage the strengths of both machine learning and conventional strategic frameworks.
 
