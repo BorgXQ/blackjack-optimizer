@@ -50,7 +50,7 @@ Although the hypothesis has been broadly validated, we now turn to a deeper anal
 The combined agent consistently outperforms all baselines, achieving the highest win rate and the best (least negative) average return. Compared to the trained agent alone, the combined approach yields a 0.94 percentage point gain in win rate and a 13.3% relative improvement in average return. Against the basic strategy model, these improvements grow to 1.90 percentage points and 27.4%, respectively.
 
 <div style="text-align: center;">
-    <img src="raw/ca_source_pie.png" alt="Pie plot for comparison between sources in combined agent" width="300">
+    <img src="raw/ca_source_pie.png" alt="Pie plot for comparison between sources in combined agent" width="400">
 </div>
 
 The pie chart highlights where these gains come from. Rather than relying solely on the trained agent, the combined approach leverages the strengths of both strategies—selecting the best action for each state. Interestingly, just 2.8% of the combined agent’s actions come from the basic strategy model, yet these contributions are precisely what drive the observed performance boost.
