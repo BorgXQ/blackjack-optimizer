@@ -203,39 +203,3 @@ class MonteCarloAgent:
     def get_q_value(self, state: Tuple, action: int) -> float:
         """Get Q-value for a specific state-action pair"""
         return self.q_table[state][action]
-    
-    def print_policy_sample(self, num_states: int=10) -> None:
-        """Print a sample of the learned policy"""
-        action_names = {
-            0: 'hit',
-            1: 'stand',
-            2: 'split',
-            3: 'double'
-        }
-        print(f"\nSample of learned policy ({num_states} states):")
-        print("-" * 60)
-
-        states_shown = 0
-        for state in sorted(self.q_table.keys()):
-            if states_shown >= num_states:
-                break
-            
-            if self.q_table[state]:
-                best_action = max(self.q_table[state].items(), key=lambda x: x[1])[0]
-                best_value = self.q_table[state][best_action]
-
-                player_sum, dealer_visible, usable_ace, can_split, can_double = state
-                ace_str = "with usable ace" if usable_ace else "without usable ace"
-                actions_str = []
-                if can_split:
-                    actions_str.append("split")
-                if can_double:
-                    actions_str.append("double")
-                available_actions = ", ".join(actions_str) if actions_str else "basic actions only"
-
-                print(f"Player: {player_sum:2d}, Dealer: {dealer_visible:2d}, {ace_str:15s}")
-                print(f"  Available: {available_actions}")
-                print(f"  Best action: {action_names[best_action]:6s} (Q={best_value:.3f})")
-                print()
-
-            states_shown += 1
