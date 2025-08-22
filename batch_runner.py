@@ -453,7 +453,7 @@ def main():
     batch_runner = BlackjackBatchRunner(
         num_runs=args.runs,
         base_output_dir=args.outdir,
-        num_workers=args.workers
+        max_workers=args.workers
     )
     
     try:
