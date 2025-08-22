@@ -330,8 +330,8 @@ def main():
     print("COMPARISON")
     print("=" * 80)
     if COMBINED_STRATEGY_ENABLED:
-        print(f"{'Metric':<20} {'Trained Agent':<15} {'Basic Strategy':<15} {'Combined Strategy':<17} {'Random Baseline':<15}")
-        print("-" * 97)
+        print(f"{'Metric':<20} {'Combined Strategy':<15} {'Basic Strategy':<15} {'Trained Agent':<17} {'Random Baseline':<15}")
+        print("-" * 86)
     else:
         print(f"{'Metric':<20} {'Trained Agent':<15} {'Basic Strategy':<15} {'Random Baseline':<15}")
         print("-" * 80)
@@ -360,7 +360,7 @@ def main():
     if COMBINED_STRATEGY_ENABLED:
         combined_vs_trained_wr = ((combined_wr - trained_wr) / trained_wr * 100)
         combined_vs_trained_reward = ((combined_reward - trained_reward) / abs(trained_reward) * 100) if trained_reward != 0 else 0
-        print(f"\nCombined vs Trained Strategy:")
+        print(f"Combined vs Trained Strategy:")
         print(f"  Win Rate:   {combined_vs_trained_wr:+6.2f}%")
         print(f"  Avg Reward: {combined_vs_trained_reward:+6.2f}%")
 
@@ -374,7 +374,7 @@ def main():
         
         trained_vs_basic_wr = ((trained_wr - basic_wr) / basic_wr * 100)
         trained_vs_basic_reward = ((trained_reward - basic_reward) / abs(basic_reward) * 100) if basic_reward != 0 else 0
-        print(f"Trained vs Basic Strategy:")
+        print(f"\nTrained vs Basic Strategy:")
         print(f"  Win Rate:   {trained_vs_basic_wr:+6.2f}%")
         print(f"  Avg Reward: {trained_vs_basic_reward:+6.2f}%")
     
