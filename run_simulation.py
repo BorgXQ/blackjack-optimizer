@@ -96,7 +96,7 @@ def train_agent(
     return agent, env, training_stats
 
 def train_basic_strategy_agent(
-    num_episodes: int=100000,
+    num_episodes: int=TRAINING_EPISODES,
     starting_balance: int=100000000,
     fixed_bet: int=10,
     save_model: bool=True,
