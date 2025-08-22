@@ -33,7 +33,7 @@ As defined in `blackjack_rl_env.py`, the agent uses a 5-tuple state representati
 For action selection, the agent employs **$\epsilon$-greedy exploration** combined with **action masking**. During training, $\epsilon$-greedy strategically balances exploration (i.e., discovering potentially superior actions) with exploitation of current knowledge embedded in the optimized Q-values. The $\epsilon$ parameter *decays over time*, gradually shifting focus from exploration to exploitation. Meanwhile, action masking ensures the agent only considers valid moves for each state, preventing illegal actions that would result in negative rewards.
 
 <div style="text-align: center;">
-    <img src="raw/trained_vs_bs_box.png" alt="Plots for winrate and average reward over 25 runs with 1 mil episodes each" width="600">
+    <img src="raw/trained_vs_bs_box.png" alt="Plots for winrate and average reward over 25 runs with 1 mil episodes each" width="400">
 </div>
 
 The trained agent, basic strategy model, and a random baseline model are run over 25 stochastic simulations, each with 1 million episodes. The distribution of the averaged winrates and rewards for each of the runs for the trained agent and the basic strategy model are compared above. It is clear that the trained agent plays Blackjack statistically more optimally than the basic strategy model.
