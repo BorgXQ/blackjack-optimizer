@@ -1,26 +1,23 @@
 import os
 import json
-import glob
 import pandas as pd
 from datetime import datetime
 import time
-import subprocess
 import sys
-import shutil
 import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from functools import partial
 import psutil
+from blackjack_sim.run_simulation import run_combined_mode, run_standard_mode
 
 
-def run_single_simulation(run_id, run_dir, combined_mode=False):
+def run_single_simulation(run_id, combined_mode=False):
     """
     Worker function for running a single simulation in a separate process.
     This function is designed to be pickle-able for multiprocessing.
 
     Args:
         run_id (int): ID of the simulation run
-        run_dir (str): Directory where results should be stored
         combined_mode (bool): Flag to indicate if combined mode is enabled
 
     Returns:
@@ -34,129 +31,58 @@ def run_single_simulation(run_id, run_dir, combined_mode=False):
     run_start_time = time.time()
     
     try:
-        cmd = [sys.executable, "run_simulation.py"]
         if combined_mode:
-            cmd.append("--combined")
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=3600)  # 1 hour timeout
-
-        if result.returncode != 0:
-            error_msg = f"Return code {result.returncode}: {result.stderr[:500]}"
-            print(f"[Worker {os.getpid()}] ERROR in run {run_id + 1}: {error_msg}")
-            return {
+            combined_df, combined_results = run_combined_mode()
+            run_result = {
                 "run_id": run_id + 1,
-                "success": False,
-                "error": error_msg,
+                "success": True,
                 "duration": time.time() - run_start_time,
                 "timestamp": datetime.now().isoformat(),
                 "worker_pid": os.getpid(),
-                "mode": "Combined" if combined_mode else "Standard"
+                "mode": "Combined",
+                "dataframes": {
+                    "combined_df": combined_df
+                }
             }
-            
-        # Parse the output to extract metrics
-        output_lines = result.stdout.split('\n')
-
-        run_result = {
-            "run_id": run_id + 1,
-            "success": True,
-            "duration": time.time() - run_start_time,
-            "timestamp": datetime.now().isoformat(),
-            "worker_pid": os.getpid(),
-            "mode": "Combined" if combined_mode else "Standard"
-        }
-        
-        if combined_mode:
-            combined_win_rate = None
-            combined_avg_reward = None
-
-            found_combined = False
-            for i, line in enumerate(output_lines):
-                if not found_combined and "COMBINED STRATEGY AGENT EVALUATION" in line:
-                    try:
-                        combined_win_rate = float(output_lines[i+9].split()[2])
-                        combined_avg_reward = float(output_lines[i+5].split()[2])
-                    except (ValueError, IndexError):
-                        continue
-                    found_combined = True
-                    break
 
             run_result.update({
-                "combined_win_rate": combined_win_rate,
-                "combined_avg_reward": combined_avg_reward,
+                "combined_win_rate": combined_results.get("win_rate", 0.0),
+                "combined_avg_reward": combined_results.get("avg_reward", 0.0),
             })
-            
+
             print(f"[Worker {os.getpid()}] Run {run_id + 1} completed in {run_result['duration']:.1f}s - "
-                  f"Combined Agent - Win Rate: {combined_win_rate:.4f}, Avg Reward: {combined_avg_reward:.4f}")
+                  f"Combined Agent - DataFrame shape: {combined_df.shape if combined_df is not None else 'N/A'}")
             
         else:
-            trained_win_rate = None
-            trained_avg_reward = None
-            basic_win_rate = None  
-            basic_avg_reward = None
-            rand_win_rate = None
-            rand_avg_reward = None
+            trained_df, basic_df, trained_results, basic_results, baseline_results = run_standard_mode()
+            run_result = {
+                "run_id": run_id + 1,
+                "success": True,
+                "duration": time.time() - run_start_time,
+                "timestamp": datetime.now().isoformat(),
+                "worker_pid": os.getpid(),
+                "mode": "Standard",
+                "dataframes": {
+                    "trained_df": trained_df,
+                    "basic_df": basic_df
+                }
+            }
 
-            found_trained = False
-            found_basic = False
-            found_rand = False
-            for i, line in enumerate(output_lines):
-                if not found_trained and "TRAINED AGENT EVALUATION" in line:
-                    try:
-                        trained_win_rate = float(output_lines[i+9].split()[2])
-                        trained_avg_reward = float(output_lines[i+5].split()[2])
-                    except (ValueError, IndexError):
-                        continue
-                    found_trained = True
-
-                if not found_basic and "BASIC STRATEGY AGENT EVALUATION" in line:
-                    try:
-                        basic_win_rate = float(output_lines[i+9].split()[2])
-                        basic_avg_reward = float(output_lines[i+5].split()[2])
-                    except (ValueError, IndexError):
-                        continue
-                    found_basic = True
-
-                if not found_rand and "BASELINE RANDOM POLICY" in line:
-                    try:
-                        rand_win_rate = float(output_lines[i+8].split()[2])
-                        rand_avg_reward = float(output_lines[i+4].split()[2])
-                    except (ValueError, IndexError):
-                        continue
-                    found_rand = True
-
-                if found_trained and found_basic and found_rand:
-                    break
-            
-            # Store results
             run_result.update({
-                "trained_win_rate": trained_win_rate,
-                "trained_avg_reward": trained_avg_reward,
-                "basic_win_rate": basic_win_rate,
-                "basic_avg_reward": basic_avg_reward,
-                "rand_win_rate": rand_win_rate,
-                "rand_avg_reward": rand_avg_reward
+                "trained_win_rate": trained_results.get("win_rate", 0.0),
+                "trained_avg_reward": trained_results.get("avg_reward", 0.0),
+                "basic_win_rate": basic_results.get("win_rate", 0.0),
+                "basic_avg_reward": basic_results.get("avg_reward", 0.0),
+                "rand_win_rate": baseline_results.get("win_rate", 0.0),
+                "rand_avg_reward": baseline_results.get("avg_reward", 0.0)
             })
 
             print(f"[Worker {os.getpid()}] Run {run_id + 1} completed in {run_result['duration']:.1f}s - "
-                f"  Trained Agent - Win Rate: {trained_win_rate:.4f}, Avg Reward: {trained_avg_reward:.4f}"
-                f"  Basic Strategy - Win Rate: {basic_win_rate:.4f}, Avg Reward: {basic_avg_reward:.4f}"
-                f"  Random Baseline - Win Rate: {rand_win_rate:.4f}, Avg Reward: {rand_avg_reward:.4f}")
+                  f"Trained DataFrame shape: {trained_df.shape if trained_df is not None else 'N/A'}, "
+                  f"Basic DataFrame shape: {basic_df.shape if basic_df is not None else 'N/A'}")
 
-        # Move generated files to organized locations
-        organize_run_files(run_id, run_dir)
-            
         return run_result
-        
-    except subprocess.TimeoutExpired:
-        print(f"ERROR: Run {run_id + 1} timed out")
-        return {
-            "run_id": run_id + 1,
-            "success": False,
-            "error": "timeout",
-            "duration": 3600,
-            "timestamp": datetime.now().isoformat(),
-            "worker_pid": os.getpid(),
-            "mode": "Combined" if combined_mode else "Standard"
-        }
+    
     except Exception as e:
         error_msg = str(e)[:500]
         print(f"[Worker {os.getpid()}] ERROR: Run {run_id + 1} failed: {error_msg}")
@@ -167,58 +93,59 @@ def run_single_simulation(run_id, run_dir, combined_mode=False):
             "duration": time.time() - run_start_time,
             "timestamp": datetime.now().isoformat(),
             "worker_pid": os.getpid(),
-            "mode": "Combined" if combined_mode else "Standard"
+            "mode": "Combined" if combined_mode else "Standard",
+            "dataframes": None
         }
 
-def organize_run_files(run_id, run_dir, combined_mode=False):
+def save_dataframes(all_results, run_dir, combined_mode=False):
     """
-    Organize generated files for a single run.
+    Save all collected dataframes from successful runs as CSV files.
+    
+    Args:
+        all_results (list): List of all run results containing dataframes
+        run_dir (str): Directory where CSV files should be saved
+        combined_mode (bool): Whether running in combined mode
     """
-    run_prefix = f"run_{run_id + 1:03d}"
+    print(f"\nSaving collected dataframes to CSV files...")
+
+    successful_results = [result for result in all_results if result.get("success", False) and result.get("dataframes")]
+    if not successful_results:
+        print("No successful runs with dataframes to save.")
+        return
     
-    if combined_mode:
-        combined_csv_files = glob.glob("combined_strategy_*.csv")
-        file_moves = []
-        for csv_file in combined_csv_files:
-            file_moves.append((csv_file, "csv_files", f"{run_prefix}_combined_strategy.csv"))
+    csv_dir = os.path.join(run_dir, "csv_files")
+    
+    for result in successful_results:
+        run_id = result["run_id"]
+        dataframes = result["dataframes"]
+        run_prefix = f"run_{run_id:03d}"
         
-        file_copies = [
-            # (source_file, target_subdir, new_name)
-            ("./model_data/combined_strategy_agent.pkl", "models", f"{run_prefix}_combined_strategy_agent.pkl")
-        ]
-    else:
-        trained_csv_files = glob.glob("trained_strategy_*.csv")
-        basic_csv_files = glob.glob("basic_strategy_*.csv")
-        file_moves = []
-        for csv_file in trained_csv_files:
-            file_moves.append((csv_file, "csv_files", f"{run_prefix}_trained_strategy.csv"))
-        for csv_file in basic_csv_files:
-            file_moves.append((csv_file, "csv_files", f"{run_prefix}_basic_strategy.csv"))
-        
-        file_copies = [
-            # (source_file, target_subdir, new_name)
-            ("./model_data/trained_agent.pkl", "models", f"{run_prefix}_trained_agent.pkl"),
-            ("./model_data/basic_strategy_agent.pkl", "models", f"{run_prefix}_basic_strategy_agent.pkl")
-        ]
+        try:
+            if combined_mode and "combined_df" in dataframes:
+                combined_df = dataframes["combined_df"]
+                if combined_df is not None:
+                    csv_path = os.path.join(csv_dir, f"{run_prefix}_combined_strategy.csv")
+                    combined_df.to_csv(csv_path, index=False)
+                    print(f"Saved: {csv_path}")
+                    
+            else:
+                # Standard mode - save both trained and basic dataframes
+                if "trained_df" in dataframes and dataframes["trained_df"] is not None:
+                    trained_df = dataframes["trained_df"]
+                    csv_path = os.path.join(csv_dir, f"{run_prefix}_trained_strategy.csv")
+                    trained_df.to_csv(csv_path, index=False)
+                    print(f"Saved: {csv_path}")
+
+                if "basic_df" in dataframes and dataframes["basic_df"] is not None:
+                    basic_df = dataframes["basic_df"]
+                    csv_path = os.path.join(csv_dir, f"{run_prefix}_basic_strategy.csv")
+                    basic_df.to_csv(csv_path, index=False)
+                    print(f"Saved: {csv_path}")
+                    
+        except Exception as e:
+            print(f"Warning: Failed to save dataframes for run {run_id}: {e}")
     
-    # Process moves
-    for source_file, target_subdir, new_name in file_moves:
-        if os.path.exists(source_file):
-            dest_path = os.path.join(run_dir, target_subdir, new_name)
-            try:
-                shutil.move(source_file, dest_path)
-                print(f"Moved {source_file} → {dest_path}")
-            except Exception as e:
-                print(f"Warning: Failed to move {source_file}: {e}")
-    
-    # Process copies
-    for source_file, target_subdir, new_name in file_copies:
-        if os.path.exists(source_file):
-            dest_path = os.path.join(run_dir, target_subdir, new_name)
-            try:
-                shutil.copy2(source_file, dest_path)
-            except Exception as e:
-                print(f"Warning: Failed to copy {source_file}: {e}")
+    print(f"Finished saving dataframes from {len(successful_results)} successful runs.")
 
 
 class BlackjackBatchRunner:
@@ -270,7 +197,6 @@ class BlackjackBatchRunner:
     
     def run_batch(self):
         """Run the complete batch of simulations (in parallel)"""
-        mode_str = "Combined Strategy" if self.combined_mode else "Standard"
         print(f"Starting batch run of {self.num_runs} simulations...")
         print(f"Using {self.max_workers} parallel workers on {mp.cpu_count()} CPU cores")
         print(f"Results will be saved to: {self.run_dir}")
@@ -283,9 +209,10 @@ class BlackjackBatchRunner:
         successful_runs = 0
         failed_runs = 0
         completed_runs = 0
+        all_results = []
 
         # Create partial function with run_dir bound
-        worker_func = partial(run_single_simulation, run_dir=self.run_dir)
+        worker_func = partial(run_single_simulation, combined_mode=self.combined_mode)
         
         # Run simulations in parallel using ProcessPoolExecutor
         with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
@@ -304,6 +231,7 @@ class BlackjackBatchRunner:
                 
                 try:
                     run_result = future.result()
+                    all_results.append(run_result)
                     
                     if run_result and run_result.get('success', False):
                         successful_runs += 1
@@ -327,7 +255,12 @@ class BlackjackBatchRunner:
                     eta = (elapsed / completed_runs) * (self.num_runs - completed_runs)
                     print(f"Progress: {completed_runs}/{self.num_runs} completed, "
                           f"ETA: {eta/60:.1f} minutes")
-        
+        # Save all collected dataframes
+        print(f"\n{'='*60}")
+        print("SAVING COLLECTED DATAFRAMES...")
+        print(f"{'='*60}")
+        save_dataframes(all_results, self.run_dir, self.combined_mode)
+
         # Finalize batch summary
         batch_duration = time.time() - batch_start_time
         self.results_summary["metadata"]["end_time"] = datetime.now().isoformat()
@@ -696,7 +629,6 @@ def main():
     except Exception as e:
         print(f"\nFATAL ERROR: {str(e)}")
         print(f"Partial results may be available in: {batch_runner.run_dir}")
-
 
 if __name__ == "__main__":
     main()
