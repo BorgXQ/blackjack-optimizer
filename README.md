@@ -52,6 +52,35 @@ Although the hypothesis has been broadly validated, we now turn to a deeper anal
     | Avg Return | -0.1097 | -0.1265 | -0.1512 | -0.4589 |
 </p>
 
+<p align="center">
+  <table align="center">
+    <thead>
+      <tr>
+        <th><strong>Metric</strong></th>
+        <th><strong>Combined Agent</strong></th>
+        <th><strong>Trained Agent</strong></th>
+        <th><strong>Basic Strat Baseline</strong></th>
+        <th><strong>Random Baseline</strong></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Winrate</strong></td>
+        <td>0.4081</td>
+        <td>0.3987</td>
+        <td>0.3891</td>
+        <td>0.2696</td>
+      </tr>
+      <tr>
+        <td><strong>Avg Return</strong></td>
+        <td>-0.1097</td>
+        <td>-0.1265</td>
+        <td>-0.1512</td>
+        <td>-0.4589</td>
+      </tr>
+    </tbody>
+  </table>
+</p>
 
 The combined agent consistently outperforms all baselines, achieving the highest win rate and the best (least negative) average return. Compared to the trained agent alone, the combined approach yields a 0.94 percentage point gain in win rate and a 13.3% relative improvement in average return. Against the basic strategy model, these improvements grow to 1.90 percentage points and 27.4%, respectively.
 
