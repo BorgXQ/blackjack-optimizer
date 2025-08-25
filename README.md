@@ -37,7 +37,7 @@ where $G_t$ is the return (i.e., cumulative discounted reward) from time $t$ onw
   - Action masking ensures only legal moves are considered
 
 <p align="center">
-    <img src="raw/trained_vs_bs_box.png" alt="Plots for winrate and average reward over 25 runs with 1 mil episodes each" width="600">
+    <img src="raw/trained_vs_bs_vs_rand_box.png" alt="Plots for winrate and average reward over 25 runs with 1 mil episodes each" width="660">
 </p>
 
 The trained agent, basic strategy model, and a random baseline model are run over 25 stochastic simulations, each with 1 million episodes. The distribution of the averaged winrates and rewards for each of the runs for the trained agent and the basic strategy model are compared above. It is clear that the trained agent plays Blackjack statistically more optimally than the basic strategy model.
