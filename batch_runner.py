@@ -639,19 +639,19 @@ class BlackjackBatchRunner:
             f.write(f"  Reward difference: {comp['reward_diff']['mean']:.4f} ± {comp['reward_diff']['std']:.4f}\n\n")
             
             # Trained vs Random
-            comp = stats_summary["comparison"]["trained_vs_random"]
+            comp = stats_summary["comparison"]["trained_vs_rand"]
             f.write("Trained vs Random Baseline:\n")
             f.write(f"  Win Rate difference: {comp['win_rate_diff']['mean']:.4f} ± {comp['win_rate_diff']['std']:.4f}\n")
             f.write(f"  Trained wins: {comp['win_rate_diff']['wins_for_trained']}/{num_successful} runs\n")
-            f.write(f"  Random wins: {comp['win_rate_diff']['wins_for_random']}/{num_successful} runs\n")
+            f.write(f"  Random wins: {comp['win_rate_diff']['wins_for_rand']}/{num_successful} runs\n")
             f.write(f"  Reward difference: {comp['reward_diff']['mean']:.4f} ± {comp['reward_diff']['std']:.4f}\n\n")
             
             # Basic vs Random
-            comp = stats_summary["comparison"]["basic_vs_random"]
+            comp = stats_summary["comparison"]["basic_vs_rand"]
             f.write("Basic Strategy vs Random Baseline:\n")
             f.write(f"  Win Rate difference: {comp['win_rate_diff']['mean']:.4f} ± {comp['win_rate_diff']['std']:.4f}\n")
             f.write(f"  Basic wins: {comp['win_rate_diff']['wins_for_basic']}/{num_successful} runs\n")
-            f.write(f"  Random wins: {comp['win_rate_diff']['wins_for_random']}/{num_successful} runs\n")
+            f.write(f"  Random wins: {comp['win_rate_diff']['wins_for_rand']}/{num_successful} runs\n")
             f.write(f"  Reward difference: {comp['reward_diff']['mean']:.4f} ± {comp['reward_diff']['std']:.4f}\n\n")
 
 
