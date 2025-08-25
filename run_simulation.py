@@ -297,13 +297,13 @@ def run_combined_mode():
     combined_filename = export_learned_strategy_csv(combined_agent, "combined_strategy.csv")
     combined_policy_analysis = analyze_policy(combined_agent)
 
-    print(f"{"Win Rate":<20} {combined_results["win_rate"]:<15.4f}")
-    print(f"{"Avg Reward":<20} {combined_results["avg_reward"]:<15.4f}")
+    print(f"{'Win Rate':<20} {combined_results['win_rate']:<15.4f}")
+    print(f"{'Avg Reward':<20} {combined_results['avg_reward']:<15.4f}")
 
     print("\n" + "=" * 60)
     print("COMBINED STRATEGY TRAINING COMPLETE")
     print("=" * 60)
-    print(f"Combined strategy states learned: {combined_policy_analysis["states_learned"]}")
+    print(f"Combined strategy states learned: {combined_policy_analysis['states_learned']}")
     print(f"Combined strategy exported to: {combined_filename}")
     print("Model saved and evaluation complete!")
 
@@ -333,7 +333,7 @@ def run_standard_mode():
     print("\n" + "=" * 80)
     print("COMPARISON")
     print("=" * 80)
-    print(f"{"Metric":<20} {"Trained Agent":<15} {"Basic Strategy":<15} {"Random Baseline":<15}")
+    print(f"{'Metric':<20} {'Trained Agent':<15} {'Basic Strategy':<15} {'Random Baseline':<15}")
     print("-" * 80)
     
     trained_wr = trained_results["win_rate"]
@@ -344,8 +344,8 @@ def run_standard_mode():
     basic_reward = basic_results["avg_reward"]
     baseline_reward = baseline_results["avg_reward"]
 
-    print(f"{"Win Rate":<20} {trained_wr:<15.4f} {basic_wr:<15.4f} {baseline_wr:<15.4f}")
-    print(f"{"Avg Reward":<20} {trained_reward:<15.4f} {basic_reward:<15.4f} {baseline_reward:<15.4f}")
+    print(f"{'Win Rate':<20} {trained_wr:<15.4f} {basic_wr:<15.4f} {baseline_wr:<15.4f}")
+    print(f"{'Avg Reward':<20} {trained_reward:<15.4f} {basic_reward:<15.4f} {baseline_reward:<15.4f}")
 
     # Calculate improvements
     print("\n" + "IMPROVEMENTS OVER BASELINES")
