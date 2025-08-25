@@ -8,15 +8,13 @@ This project aims to close the gap between the house edge and player's expected 
 
 ### Blackjack Environment
 
-Basic Blackjack rules apply. Since tables and casinos may have varying rules for Blackjack, it is important that we lay out the rules the simulation in this project follows:
-1. The playing deck starts with six card decks (each containing 52 distinct cards) and is reshuffled and reset after two decks' worth of cards are drawn
-2. The dealer stands on soft 17
-3. The player can double down a hand at any point as long as they have exactly two cards in that hand
-4. The player cannot split a hand that has been split previously
-
-In total, without including the restrictions set by the basic strategy model, there are 600 unique combinations of states: `player_sum`, `dealer_visible`, `usable_ace`, `can_split`, and `can_double`.
-
-We consider the environment *Markovian*—meaning the current state contains all necessary information to make optimal decisions without requiring knowledge of previous states. This formulation creates a *Markov Decision Process* where future outcomes depend only on the current state and chosen action, not the sequence of past events that led to the current situation. Intuitively, this is true for Blackjack.
+- **Decks**: 6 standard decks (52 cards each), reshuffled after 2 decks drawn
+- **Dealer rule**: Stands on soft 17
+- **Player actions**:
+  - Can double down on any 2-card hand
+  - Can split only once (no re-splitting)
+- **State space**: 600 possible combinations (`player_sum`, `dealer_visible`, `usable_ace`, `can_split`, `can_double`)
+- **Assumption**: Environment is *Markovian* &rarr; modeled as a Markov Decision Process (MDP)
 
 ### Trained Agent
 
@@ -28,9 +26,14 @@ $$
 
 where $G_t$ is the return (i.e., cumulative discounted reward) from time $t$ onward.
 
-As defined in `blackjack_rl_env.py`, the agent uses a 5-tuple state representation (`player_sum`, `dealer_visible`, `usable_ace`, `can_split`, and `can_double`) to capture the relevant information for decision-making. A Q-table stores the Q-values, which are the expected total returns for each state-action combination. As the agent progresses through episodes, these Q-values are continuously refined through temporal backpropagation of returns. This process works by analyzing completed episodes backwards in time, accumulating rewards ($G=G\gamma+r$) to calculate the total return from each decision point. Here, $\gamma=1.0$, meaning no discounting is applied since Blackjack is an episodic game where all rewards within an episode are equally important regardless of timing. These returns are then used to update the Q-values through sample averaging, gradually improving the agent’s understanding of action quality.
-
-For action selection, the agent employs **$\epsilon$-greedy exploration** combined with **action masking**. During training, $\epsilon$-greedy strategically balances exploration (i.e., discovering potentially superior actions) with exploitation of current knowledge embedded in the optimized Q-values. The $\epsilon$ parameter *decays over time*, gradually shifting focus from exploration to exploitation. Meanwhile, action masking ensures the agent only considers valid moves for each state, preventing illegal actions that would result in negative rewards.
+Some more information:
+- **Q-table**: Stores estimated returns for each state-action pair (5-tuple state)
+- **Policy improvement**:
+  - Backpropagation of returns ($G=G\gamma+r$) through completed episodes without discounting ($\gamma=1.0$)
+  - Updates Q-values by sample averaging across visits
+- **Action selection**:
+  - $\epsilon$-greedy exploration with decaying $\epsilon$ balances exploration and exploitation
+  - Action masking ensures only legal moves are considered
 
 <div style="text-align: center;">
     <img src="raw/trained_vs_bs_box.png" alt="Plots for winrate and average reward over 25 runs with 1 mil episodes each" width="400">
@@ -126,18 +129,6 @@ Source: basic, trained
 ```
 
 According to the agent, in general, splitting 9s against a dealer's 8 leads to a positive return of 0.10632 per unit bet.
-
-## Results
-
-The trained agent demonstrates a 0.96 percentage point improvement in win rate compared to the basic strategy baseline while achieving a substantially better average return with a 16.3% relative improvement in losses. Both metrics significantly outperform the random baseline, with the trained agent showing 12.91 percentage points higher win rate and 72.4% better average return than random play.
-
-
-
-These results demonstrate that while the trained agent successfully learns to outperform traditional heuristics, the greatest gains emerge from intelligently combining learned strategies with established baseline approaches, suggesting that hybrid methodologies can effectively leverage the strengths of both machine learning and conventional strategic frameworks.
-
-<img src="raw/training_progress.png" alt="Plots for rewards, winrate, and epsilon decay over 1 mil episodes" width="600" style="text-align: center;"> <br>
-
-The win rate over the 1,000,000 episodes remained somewhat consistent with a range between 0.3898 and 0.4095. The average reward dramatically improved in the first 200,000 episodes but then stagnated for the remainder of the training period.
 
 ## Conclusion
 
