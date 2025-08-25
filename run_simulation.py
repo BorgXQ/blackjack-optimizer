@@ -1,4 +1,5 @@
 import numpy as np
+import argparse
 from blackjack_sim.blackjack_rl_env import BlackjackRLEnv
 from blackjack_sim.monte_carlo_agent import MonteCarloAgent
 from blackjack_sim.basic_strategy_agent import BasicStrategyAgent
@@ -9,8 +10,7 @@ from blackjack_sim.config import (
     BASELINE_EPISODES,
     EPSILON,
     EPSILON_DECAY,
-    LOG_INTERVAL,
-    COMBINED_STRATEGY_ENABLED
+    LOG_INTERVAL
 )
 from blackjack_sim.utils import (
     plot_training_progress,
@@ -43,16 +43,15 @@ def train_agent(
     print(f"Epsilon decay: {epsilon_decay}")
     print("-" * 60)
     
-    # Initialize environment and agent
     env = BlackjackRLEnv(starting_balance=starting_balance, fixed_bet=fixed_bet)
     agent = MonteCarloAgent(epsilon=epsilon, epsilon_decay=epsilon_decay)
     
     # Training stats
     training_stats = {
-        'episodes': [],
-        'avg_rewards': [],
-        'avg_win_rates': [],
-        'epsilons': []
+        "episodes": [],
+        "avg_rewards": [],
+        "avg_win_rates": [],
+        "epsilons": []
     }
     
     start_time = time.time()
@@ -81,16 +80,15 @@ def train_agent(
                   f"EPS: {episodes_per_sec:.1f}")
             
             # Store for plotting
-            training_stats['episodes'].append(episode + 1)
-            training_stats['avg_rewards'].append(avg_reward)
-            training_stats['avg_win_rates'].append(avg_win_rate)
-            training_stats['epsilons'].append(agent.epsilon)
+            training_stats["episodes"].append(episode + 1)
+            training_stats["avg_rewards"].append(avg_reward)
+            training_stats["avg_win_rates"].append(avg_win_rate)
+            training_stats["epsilons"].append(agent.epsilon)
     
     total_time = time.time() - start_time
     print(f"\nTraining completed in {total_time:.2f} seconds")
     print(f"Average speed: {num_episodes / total_time:.1f} episodes/second")
     
-    # Save trained model
     if save_model:
         agent.save_model(model_path)
         print(f"Model saved to {model_path}")
@@ -113,7 +111,6 @@ def train_basic_strategy_agent(
     print(f"Episodes: {num_episodes:,}")
     print("-" * 60)
     
-    # Initialize environment and agent
     env = BlackjackRLEnv(starting_balance=starting_balance, fixed_bet=fixed_bet)
     basic_agent = BasicStrategyAgent()
     
@@ -126,7 +123,6 @@ def train_basic_strategy_agent(
     print(f"Basic Strategy Q-value training completed in {total_time:.2f} seconds")
     print(f"Average speed: {num_episodes / total_time:.1f} episodes/second")
     
-    # Save trained model
     if save_model:
         basic_agent.save_model(model_path)
         print(f"Basic Strategy model saved to {model_path}")
@@ -150,7 +146,6 @@ def train_combined_strategy_agent(
     print(f"Episodes: {num_episodes:,}")
     print("-" * 60)
     
-    # Initialize environment and agent
     env = BlackjackRLEnv(starting_balance=starting_balance, fixed_bet=fixed_bet)
     combined_agent = CombinedStrategyAgent(csv_filepath=csv_filepath)
 
@@ -163,7 +158,6 @@ def train_combined_strategy_agent(
     print(f"Basic Strategy Q-value training completed in {total_time:.2f} seconds")
     print(f"Average speed: {num_episodes / total_time:.1f} episodes/second")
     
-    # Save trained model
     if save_model:
         combined_agent.save_model(model_path)
         print(f"Combined Strategy model saved to {model_path}")
@@ -189,7 +183,6 @@ def evaluate_trained_agent(
     print(f"Episodes: {num_episodes:,}")
     print("-" * 60)
     
-    # Print detailed statistics
     print_statistics(eval_results)
     
     return eval_results
@@ -213,7 +206,6 @@ def evaluate_basic_strategy_agent(
     print(f"Episodes: {num_episodes:,}")
     print("-" * 60)
     
-    # Print detailed statistics
     print_statistics(eval_results)
     
     return eval_results
@@ -237,7 +229,6 @@ def evaluate_combined_strategy_agent(
     print(f"Episodes: {num_episodes:,}")
     print("-" * 60)
     
-    # Print detailed statistics
     print_statistics(eval_results)
     
     return eval_results
@@ -269,19 +260,18 @@ def run_baseline_comparison(env: BlackjackRLEnv, num_episodes: int=BASELINE_EPIS
             
             if done:
                 total_rewards.append(episode_reward)
-                total_wins.append(info.get('wins', 0))
-                total_hands_count.append(info.get('total_hands', 1))
+                total_wins.append(info.get("wins", 0))
+                total_hands_count.append(info.get("total_hands", 1))
                 break
                 
             state = next_state
     
-    # Calculate stats
     baseline_results = {
-        'avg_reward': np.mean(total_rewards),
-        'total_wins': sum(total_wins),
-        'total_hands': sum(total_hands_count),
-        'win_rate': sum(total_wins) / sum(total_hands_count) if sum(total_hands_count) > 0 else 0,
-        'std_reward': np.std(total_rewards)
+        "avg_reward": np.mean(total_rewards),
+        "total_wins": sum(total_wins),
+        "total_hands": sum(total_hands_count),
+        "win_rate": sum(total_wins) / sum(total_hands_count) if sum(total_hands_count) > 0 else 0,
+        "std_reward": np.std(total_rewards)
     }
     
     print(f"Episodes: {num_episodes:,}")
@@ -290,8 +280,35 @@ def run_baseline_comparison(env: BlackjackRLEnv, num_episodes: int=BASELINE_EPIS
     
     return baseline_results
 
-def main():
-    """Main simulation runner"""
+def run_combined_mode():
+    """Run only the combined strategy agent"""
+    print("=" * 60)
+    print("COMBINED STRATEGY MODE")
+    print("=" * 60)
+    
+    combined_agent = train_combined_strategy_agent(
+        num_episodes=TRAINING_EPISODES,
+        log_interval=LOG_INTERVAL
+    )
+    
+    env = BlackjackRLEnv(starting_balance=100000000, fixed_bet=10)
+    
+    combined_results = evaluate_combined_strategy_agent(combined_agent, env, EVALUATION_EPISODES)
+    combined_filename = export_learned_strategy_csv(combined_agent, "combined_strategy.csv")
+    combined_policy_analysis = analyze_policy(combined_agent)
+
+    print(f"{"Win Rate":<20} {combined_results["win_rate"]:<15.4f}")
+    print(f"{"Avg Reward":<20} {combined_results["avg_reward"]:<15.4f}")
+
+    print("\n" + "=" * 60)
+    print("COMBINED STRATEGY TRAINING COMPLETE")
+    print("=" * 60)
+    print(f"Combined strategy states learned: {combined_policy_analysis["states_learned"]}")
+    print(f"Combined strategy exported to: {combined_filename}")
+    print("Model saved and evaluation complete!")
+
+def run_standard_mode():
+    """Run trained agent, basic strategy, and random baseline"""
     
     # Train agent
     trained_agent, env, training_stats = train_agent(
@@ -307,71 +324,34 @@ def main():
         log_interval=LOG_INTERVAL
     )
 
-    # Train combined strategy agent
-    combined_agent = None
-    if COMBINED_STRATEGY_ENABLED:
-        combined_agent = train_combined_strategy_agent(
-            num_episodes=TRAINING_EPISODES,
-            log_interval=LOG_INTERVAL
-        )
-
-    # Evaluate the agents
+    # Evaluate the agents and run baseline comparison
     trained_results = evaluate_trained_agent(trained_agent, env, EVALUATION_EPISODES)
     basic_results = evaluate_basic_strategy_agent(basic_agent, env, EVALUATION_EPISODES)
-    combined_results = None
-    if COMBINED_STRATEGY_ENABLED:
-        combined_results = evaluate_combined_strategy_agent(combined_agent, env, EVALUATION_EPISODES)
-
-    # Run baseline comparison
     baseline_results = run_baseline_comparison(env, BASELINE_EPISODES)
     
     # Compare results
     print("\n" + "=" * 80)
     print("COMPARISON")
     print("=" * 80)
-    if COMBINED_STRATEGY_ENABLED:
-        print(f"{'Metric':<20} {'Combined Strategy':<15} {'Basic Strategy':<15} {'Trained Agent':<17} {'Random Baseline':<15}")
-        print("-" * 86)
-    else:
-        print(f"{'Metric':<20} {'Trained Agent':<15} {'Basic Strategy':<15} {'Random Baseline':<15}")
-        print("-" * 80)
+    print(f"{"Metric":<20} {"Trained Agent":<15} {"Basic Strategy":<15} {"Random Baseline":<15}")
+    print("-" * 80)
     
-    trained_wr = trained_results['win_rate']
-    basic_wr = basic_results['win_rate']
-    baseline_wr = baseline_results['win_rate']
+    trained_wr = trained_results["win_rate"]
+    basic_wr = basic_results["win_rate"]
+    baseline_wr = baseline_results["win_rate"]
     
-    trained_reward = trained_results['avg_reward']
-    basic_reward = basic_results['avg_reward']
-    baseline_reward = baseline_results['avg_reward']
-    
-    if COMBINED_STRATEGY_ENABLED:
-        combined_wr = combined_results['win_rate']
-        combined_reward = combined_results['avg_reward']
-        print(f"{'Win Rate':<20} {combined_wr:<17.4f} {trained_wr:<15.4f} {basic_wr:<15.4f} {baseline_wr:<15.4f}")
-        print(f"{'Avg Reward':<20} {combined_reward:<17.4f} {trained_reward:<15.4f} {basic_reward:<15.4f} {baseline_reward:<15.4f}")
-    else:
-        print(f"{'Win Rate':<20} {trained_wr:<15.4f} {basic_wr:<15.4f} {baseline_wr:<15.4f}")
-        print(f"{'Avg Reward':<20} {trained_reward:<15.4f} {basic_reward:<15.4f} {baseline_reward:<15.4f}")
+    trained_reward = trained_results["avg_reward"]
+    basic_reward = basic_results["avg_reward"]
+    baseline_reward = baseline_results["avg_reward"]
+
+    print(f"{"Win Rate":<20} {trained_wr:<15.4f} {basic_wr:<15.4f} {baseline_wr:<15.4f}")
+    print(f"{"Avg Reward":<20} {trained_reward:<15.4f} {basic_reward:<15.4f} {baseline_reward:<15.4f}")
 
     # Calculate improvements
     print("\n" + "IMPROVEMENTS OVER BASELINES")
     print("-" * 40)
-    
-    if COMBINED_STRATEGY_ENABLED:
-        combined_vs_trained_wr = ((combined_wr - trained_wr) / trained_wr * 100)
-        combined_vs_trained_reward = ((combined_reward - trained_reward) / abs(trained_reward) * 100) if trained_reward != 0 else 0
-        print(f"Combined vs Trained Strategy:")
-        print(f"  Win Rate:   {combined_vs_trained_wr:+6.2f}%")
-        print(f"  Avg Reward: {combined_vs_trained_reward:+6.2f}%")
 
     if basic_wr > 0:
-        if COMBINED_STRATEGY_ENABLED:
-            combined_vs_basic_wr = ((combined_wr - basic_wr) / basic_wr * 100)
-            combined_vs_basic_reward = ((combined_reward - basic_reward) / abs(basic_reward) * 100) if basic_reward != 0 else 0
-            print(f"\nCombined vs Basic Strategy:")
-            print(f"  Win Rate:   {combined_vs_basic_wr:+6.2f}%")
-            print(f"  Avg Reward: {combined_vs_basic_reward:+6.2f}%")
-        
         trained_vs_basic_wr = ((trained_wr - basic_wr) / basic_wr * 100)
         trained_vs_basic_reward = ((trained_reward - basic_reward) / abs(basic_reward) * 100) if basic_reward != 0 else 0
         print(f"\nTrained vs Basic Strategy:")
@@ -379,13 +359,6 @@ def main():
         print(f"  Avg Reward: {trained_vs_basic_reward:+6.2f}%")
     
     if baseline_wr > 0:
-        if COMBINED_STRATEGY_ENABLED:
-            combined_vs_random_wr = ((combined_wr - baseline_wr) / baseline_wr * 100)
-            combined_vs_random_reward = ((combined_reward - baseline_reward) / abs(baseline_reward) * 100) if baseline_reward != 0 else 0
-            print(f"\nCombined vs Random:")
-            print(f"  Win Rate:   {combined_vs_random_wr:+6.2f}%")
-            print(f"  Avg Reward: {combined_vs_random_reward:+6.2f}%")
-        
         trained_vs_random_wr = ((trained_wr - baseline_wr) / baseline_wr * 100)
         trained_vs_random_reward = ((trained_reward - baseline_reward) / abs(baseline_reward) * 100) if baseline_reward != 0 else 0
         print(f"\nTrained vs Random:")
@@ -401,8 +374,6 @@ def main():
     # Export learned strategy to CSV
     trained_filename = export_learned_strategy_csv(trained_agent, "trained_strategy.csv")
     basic_filename = export_learned_strategy_csv(basic_agent, "basic_strategy.csv")
-    if COMBINED_STRATEGY_ENABLED:
-        combined_filename = export_learned_strategy_csv(combined_agent, "combined_strategy.csv")
     
     # Plot training progress
     plot_training_progress(training_stats)
@@ -410,22 +381,28 @@ def main():
     # Analyze the learned policy
     trained_policy_analysis = analyze_policy(trained_agent)
     basic_policy_analysis = analyze_policy(basic_agent)
-    if COMBINED_STRATEGY_ENABLED:
-        combined_policy_analysis = analyze_policy(combined_agent)
 
     print("\n" + "=" * 60)
-    print("TRAINING COMPLETE")
+    print("STANDARD TRAINING COMPLETE")
     print("=" * 60)
-    if COMBINED_STRATEGY_ENABLED:
-        print(f"Combined strategy states learned: {combined_policy_analysis['states_learned']}")
-    print(f"Trained states learned: {trained_policy_analysis['states_learned']}")
-    print(f"Basic strategy states learned: {basic_policy_analysis['states_learned']}")
+    print(f"Trained states learned: {trained_policy_analysis["states_learned"]}")
+    print(f"Basic strategy states learned: {basic_policy_analysis["states_learned"]}")
     print(f"Final trained epsilon: {trained_agent.epsilon:.6f}")
-    if COMBINED_STRATEGY_ENABLED:
-        print(f"Combined strategy exported to: {combined_filename}")
     print(f"Trained strategy exported to: {trained_filename}")
     print(f"Basic strategy exported to: {basic_filename}")
     print("Model saved and evaluation complete!")
+
+def main():
+    """Main simulation runner"""
+    parser = argparse.ArgumentParser(description='Run blackjack Monte Carlo simulations')
+    parser.add_argument('--combined', action='store_true', 
+                       help='Run only combined strategy agent instead of standard mode')
+    args = parser.parse_args()
+    
+    if args.combined:
+        run_combined_mode()
+    else:
+        run_standard_mode()
 
 if __name__ == "__main__":
     main()
