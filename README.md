@@ -16,6 +16,9 @@ This project aims to close the gap between the house edge and player's expected 
 - **State space**: 600 possible combinations (`player_sum`, `dealer_visible`, `usable_ace`, `can_split`, `can_double`)
 - **Assumption**: Environment is *Markovian* &rarr; modeled as a Markov Decision Process (MDP)
 
+### Default Simulation
+Each simulation, detailed in `run_simulation.py`, consists of, by default, 1 million Blackjack episodes. Each episode is a full round from dealing cards (sampling form the stochastic environment) until a terminal state is reached (win/loss/draw). 25 such simulations are run by default in `batch_runner.py` to reduce the standard error of the mean (SEM) for a more accurate estimate of the true expected return.
+
 ### Trained Agent
 
 To validate the hypothesis, we implement an agent that represents a **model-free, on-policy Monte Carlo (MC) method** for learning optimal Blackjack strategy. The agent implements the **every-visit MC** method for policy evaluation and improvement that updates *Q-values* for every occurrence of a state-action pair within an episode. The fundamental equation being approximated is
@@ -24,9 +27,7 @@ $$
 Q\left(s,a\right)\approx E\left[G_t|S_t=s,A_t=a\right]
 $$
 
-where $G_t$ is the return (i.e., cumulative discounted reward) from time $t$ onward.
-
-Some more information:
+where $G_t$ is the return (i.e., cumulative discounted reward) from time $t$ onward. More information about the training procedure is given below:
 - **Q-table**: Stores estimated returns for each state-action pair (5-tuple state)
 - **Policy improvement**:
   - Backpropagation of returns ($G=G\gamma+r$) through completed episodes without discounting ($\gamma=1.0$)
@@ -116,23 +117,29 @@ python blackjack_game.py
 
 ### Run Simulation and Analysis
 
-The second part of this project is the simulated Blackjack environment that runs for many episodes while the reinforcement learning model learns the "best" outcomes. The following code generates multiple instances of each full training and evaluation cycles:
+To run the default 25 simulations, input the following command:
 
 ```bash
-python batch_runner.py --runs 25
+python batch_runner.py
 ```
 
-Running this is necessary to proceed with running the cells in `analysis.ipynb`. However, before that, you must also run the following script, which initializes a CSV file containing all the supposed possible combinations given the constraints put forth in the project scope:
+You can specify how many simulations to run by using the `--runs` parameter. Next, generate the possible state combinations by running the following:
 
 ```bash
 python total_combinations.py
 ```
 
-After running the two CLI commands above, you can get run all the cells in `analysis.ipynb`. Aside from analyses, the script aggregates the best action-state combinations between the trained agent and basic strategy, creating a new CSV file with which you can perform optimal Blackjack action predictions with.
+After running the two commands above, you can run all the cells in `analysis.ipynb` (there will be some intended errors beyond the later cells due to missing data). Aside from analyses, the script aggregates the best action-state combinations between the trained agent and basic strategy, creating a new CSV file with which you can perform optimal Blackjack action predictions with. Now, you can run the following:
+
+```bash
+python batch_runner.py --combined
+```
+
+Finally, rerun `analysis.ipynb` once more to obtain all the analyses results without anymore errors.
 
 ### Run Prediction
 
-Once you have run `analysis.ipynb`, you can run predictions using the following format:
+Once you have run `analysis.ipynb` for the first time, you can run predictions using the following format:
 
 ```bash
 # Ex1: Your cards are [9, 9] and the dealer's up-card is a 8
@@ -152,8 +159,6 @@ Best Action: Split
 EV: 0.10632
 Source: basic, trained
 ```
-
-According to the agent, in general, splitting 9s against a dealer's 8 leads to a positive return of 0.10632 per unit bet.
 
 ## Conclusion
 
