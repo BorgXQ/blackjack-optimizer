@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import csv
 from typing import Dict
@@ -114,27 +115,18 @@ def analyze_policy(agent) -> Dict:
     
     return analysis
 
-def export_learned_strategy_csv(agent, filename: str = "learned_blackjack_strategy.csv"):
-    """Export the learned strategy to a CSV file"""
-    
+def get_strategy_df(agent, filename: str = "learned_blackjack_strategy.csv", export=False):
+    """Return strategy as a dataframe and optionally export to a CSV file"""
     action_names = {0: "Hit", 1: "Stand", 2: "Split", 3: "Double"}
-    
-    # Prepare data for CSV
     csv_data = []
     
     for state in agent.q_table:
         if agent.q_table[state]:  # Only include states with Q-values
             player_sum, dealer_visible, usable_ace, can_split, can_double = state
             
-            # Find best action and its Q-value
             best_action_idx = max(agent.q_table[state].items(), key=lambda x: x[1])[0]
             best_q_value = agent.q_table[state][best_action_idx]
             best_action_name = action_names[best_action_idx]
-            
-            # Convert Q-value to a more interpretable success likelihood
-            # Since Q-values represent expected returns, we can normalize them
-            # Higher Q-values = better expected outcomes
-            success_likelihood = best_q_value
             
             csv_data.append({
                 "player_sum": player_sum,
@@ -143,33 +135,26 @@ def export_learned_strategy_csv(agent, filename: str = "learned_blackjack_strate
                 "can_split": can_split,
                 "can_double": can_double,
                 "best_action": best_action_name,
-                "ev": round(success_likelihood, 4)
+                "ev": round(best_q_value, 4)
             })
     
     # Sort by state components for better readability
     csv_data.sort(key=lambda x: (x["player_sum"], x["dealer_visible"], 
                                  not x["usable_ace"], not x["can_split"], not x["can_double"]))
     
-    # Write to CSV
-    fieldnames = ["player_sum", "dealer_visible", "usable_ace", "can_split", 
-                  "can_double", "best_action", "ev"]
-    
-    with open(filename, "w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(csv_data)
-    
-    print(f"\nLearned strategy exported to {filename}")
-    print(f"Total states learned: {len(csv_data):,}")
-    
-    # Provide some summary statistics
-    action_counts = defaultdict(int)
-    for row in csv_data:
-        action_counts[row["best_action"]] += 1
-    
-    print("\nAction distribution in learned strategy:")
-    for action, count in sorted(action_counts.items()):
-        percentage = (count / len(csv_data)) * 100
-        print(f"  {action:<8}: {count:>4,} states ({percentage:5.1f}%)")
-    
-    return filename
+    if export:
+        # Write to CSV
+        fieldnames = ["player_sum", "dealer_visible", "usable_ace", "can_split", 
+                    "can_double", "best_action", "ev"]
+        
+        with open(filename, "w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(csv_data)
+        
+        print(f"\nLearned strategy exported to {filename}")
+        print(f"Total states learned: {len(csv_data):,}")
+
+        return filename, pd.DataFrame(csv_data)
+    else:
+        return pd.DataFrame(csv_data)
