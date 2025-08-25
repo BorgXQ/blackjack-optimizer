@@ -74,48 +74,7 @@ def print_statistics(results: Dict):
         print(f"Max Reward:     {max(rewards):8.4f}")
         print(f"Median Reward:  {np.median(rewards):8.4f}")
 
-def analyze_policy(agent) -> Dict:
-    """Analyze the learned policy"""
-    
-    action_names = {0: "Hit", 1: "Stand", 2: "Split", 3: "Double"}
-    
-    # Count actions by state characteristics
-    policy_by_player_sum = defaultdict(lambda: defaultdict(int))
-    policy_by_dealer_card = defaultdict(lambda: defaultdict(int))
-    policy_by_ace = defaultdict(lambda: defaultdict(int))
-    
-    states_learned = 0
-    
-    for state in agent.q_table:
-        if agent.q_table[state]:
-            states_learned += 1
-            
-            # Get best action for this state
-            best_action = max(agent.q_table[state].items(), key=lambda x: x[1])[0]
-            
-            player_sum, dealer_showing, usable_ace, can_split, can_double = state
-            
-            # Categorize by player sum
-            policy_by_player_sum[player_sum][best_action] += 1
-            
-            # Categorize by dealer showing card
-            policy_by_dealer_card[dealer_showing][best_action] += 1
-            
-            # Categorize by ace status
-            ace_status = "with_ace" if usable_ace else "no_ace"
-            policy_by_ace[ace_status][best_action] += 1
-    
-    # Create summary
-    analysis = {
-        "states_learned": states_learned,
-        "policy_by_player_sum": dict(policy_by_player_sum),
-        "policy_by_dealer_card": dict(policy_by_dealer_card),
-        "policy_by_ace": dict(policy_by_ace)
-    }
-    
-    return analysis
-
-def get_strategy_df(agent, filename: str = "learned_blackjack_strategy.csv", export=False):
+def get_strategy_df(agent, filename: str=None, export=False):
     """Return strategy as a dataframe and optionally export to a CSV file"""
     action_names = {0: "Hit", 1: "Stand", 2: "Split", 3: "Double"}
     csv_data = []
@@ -142,7 +101,7 @@ def get_strategy_df(agent, filename: str = "learned_blackjack_strategy.csv", exp
     csv_data.sort(key=lambda x: (x["player_sum"], x["dealer_visible"], 
                                  not x["usable_ace"], not x["can_split"], not x["can_double"]))
     
-    if export:
+    if export and filename:
         # Write to CSV
         fieldnames = ["player_sum", "dealer_visible", "usable_ace", "can_split", 
                     "can_double", "best_action", "ev"]
