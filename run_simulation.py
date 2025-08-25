@@ -385,8 +385,8 @@ def run_standard_mode():
     print("\n" + "=" * 60)
     print("STANDARD TRAINING COMPLETE")
     print("=" * 60)
-    print(f"Trained states learned: {trained_policy_analysis["states_learned"]}")
-    print(f"Basic strategy states learned: {basic_policy_analysis["states_learned"]}")
+    print(f"Trained states learned: {trained_policy_analysis['states_learned']}")
+    print(f"Basic strategy states learned: {basic_policy_analysis['states_learned']}")
     print(f"Final trained epsilon: {trained_agent.epsilon:.6f}")
     print(f"Trained strategy exported to: {trained_filename}")
     print(f"Basic strategy exported to: {basic_filename}")
@@ -394,9 +394,9 @@ def run_standard_mode():
 
 def main():
     """Main simulation runner"""
-    parser = argparse.ArgumentParser(description='Run blackjack Monte Carlo simulations')
-    parser.add_argument('--combined', action='store_true', 
-                       help='Run only combined strategy agent instead of standard mode')
+    parser = argparse.ArgumentParser(description="Run blackjack Monte Carlo simulations")
+    parser.add_argument("--combined", action="store_true", 
+                       help="Run only combined strategy agent instead of standard mode")
     args = parser.parse_args()
     
     if args.combined:
