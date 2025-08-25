@@ -35,9 +35,9 @@ Some more information:
   - $\epsilon$-greedy exploration with decaying $\epsilon$ balances exploration and exploitation
   - Action masking ensures only legal moves are considered
 
-<div style="text-align: center;">
+<p align="center">
     <img src="raw/trained_vs_bs_box.png" alt="Plots for winrate and average reward over 25 runs with 1 mil episodes each" width="400">
-</div>
+</p>
 
 The trained agent, basic strategy model, and a random baseline model are run over 25 stochastic simulations, each with 1 million episodes. The distribution of the averaged winrates and rewards for each of the runs for the trained agent and the basic strategy model are compared above. It is clear that the trained agent plays Blackjack statistically more optimally than the basic strategy model.
 
@@ -52,9 +52,9 @@ Although the hypothesis has been broadly validated, we now turn to a deeper anal
 
 The combined agent consistently outperforms all baselines, achieving the highest win rate and the best (least negative) average return. Compared to the trained agent alone, the combined approach yields a 0.94 percentage point gain in win rate and a 13.3% relative improvement in average return. Against the basic strategy model, these improvements grow to 1.90 percentage points and 27.4%, respectively.
 
-<div style="text-align: center;">
-    <img src="raw/ca_source_pie.png" alt="Pie plot for comparison between sources in combined agent" width="400">
-</div>
+<p align="center">
+    <img src="raw/ca_source_pie.png" alt="Pie plot for comparison between sources in combined agent" width="600">
+</p>
 
 The pie chart highlights where these gains come from. Rather than relying solely on the trained agent, the combined approach leverages the strengths of both strategies—selecting the best action for each state. Interestingly, just 2.8% of the combined agent’s actions come from the basic strategy model, yet these contributions are precisely what drive the observed performance boost.
 
