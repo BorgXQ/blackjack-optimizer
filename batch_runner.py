@@ -1,5 +1,6 @@
 import os
 import json
+import glob
 import pandas as pd
 from datetime import datetime
 import time
@@ -176,20 +177,24 @@ def organize_run_files(run_id, run_dir, combined_mode=False):
     run_prefix = f"run_{run_id + 1:03d}"
     
     if combined_mode:
-        file_moves = [
-            # (source_file, target_subdir, new_name)
-            ("combined_strategy.csv", "csv_files", f"{run_prefix}_combined_strategy.csv")
-        ]
+        combined_csv_files = glob.glob("combined_strategy_*.csv")
+        file_moves = []
+        for csv_file in combined_csv_files:
+            file_moves.append((csv_file, "csv_files", f"{run_prefix}_combined_strategy.csv"))
+        
         file_copies = [
             # (source_file, target_subdir, new_name)
             ("./model_data/combined_strategy_agent.pkl", "models", f"{run_prefix}_combined_strategy_agent.pkl")
         ]
     else:
-        file_moves = [
-            # (source_file, target_subdir, new_name)
-            ("trained_strategy.csv", "csv_files", f"{run_prefix}_trained_strategy.csv"),
-            ("basic_strategy.csv", "csv_files", f"{run_prefix}_basic_strategy.csv")
-        ]
+        trained_csv_files = glob.glob("trained_strategy_*.csv")
+        basic_csv_files = glob.glob("basic_strategy_*.csv")
+        file_moves = []
+        for csv_file in trained_csv_files:
+            file_moves.append((csv_file, "csv_files", f"{run_prefix}_trained_strategy.csv"))
+        for csv_file in basic_csv_files:
+            file_moves.append((csv_file, "csv_files", f"{run_prefix}_basic_strategy.csv"))
+        
         file_copies = [
             # (source_file, target_subdir, new_name)
             ("./model_data/trained_agent.pkl", "models", f"{run_prefix}_trained_agent.pkl"),
@@ -202,6 +207,7 @@ def organize_run_files(run_id, run_dir, combined_mode=False):
             dest_path = os.path.join(run_dir, target_subdir, new_name)
             try:
                 shutil.move(source_file, dest_path)
+                print(f"Moved {source_file} → {dest_path}")
             except Exception as e:
                 print(f"Warning: Failed to move {source_file}: {e}")
     

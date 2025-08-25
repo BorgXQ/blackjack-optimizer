@@ -1,5 +1,6 @@
-import numpy as np
+import os
 import argparse
+import numpy as np
 from blackjack_sim.blackjack_rl_env import BlackjackRLEnv
 from blackjack_sim.monte_carlo_agent import MonteCarloAgent
 from blackjack_sim.basic_strategy_agent import BasicStrategyAgent
@@ -294,7 +295,8 @@ def run_combined_mode():
     env = BlackjackRLEnv(starting_balance=100000000, fixed_bet=10)
     
     combined_results = evaluate_combined_strategy_agent(combined_agent, env, EVALUATION_EPISODES)
-    combined_filename = export_learned_strategy_csv(combined_agent, "combined_strategy.csv")
+    unique_filename = f"combined_strategy_{os.getpid()}_{int(time.time() * 1000)}.csv"
+    combined_filename = export_learned_strategy_csv(combined_agent, unique_filename)
     combined_policy_analysis = analyze_policy(combined_agent)
 
     print(f"{'Win Rate':<20} {combined_results['win_rate']:<15.4f}")
@@ -372,9 +374,11 @@ def run_standard_mode():
         print(f"  Avg Reward: {basic_vs_random_reward:+6.2f}%")
 
     # Export learned strategy to CSV
-    trained_filename = export_learned_strategy_csv(trained_agent, "trained_strategy.csv")
-    basic_filename = export_learned_strategy_csv(basic_agent, "basic_strategy.csv")
-    
+    tr_unique_filename = f"trained_strategy_{os.getpid()}_{int(time.time() * 1000)}.csv"
+    bs_unique_filename = f"basic_strategy_{os.getpid()}_{int(time.time() * 1000)}.csv"
+    trained_filename = export_learned_strategy_csv(trained_agent, tr_unique_filename)
+    basic_filename = export_learned_strategy_csv(basic_agent, bs_unique_filename)
+
     # Plot training progress
     plot_training_progress(training_stats)
     
