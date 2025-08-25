@@ -1,4 +1,3 @@
-import os
 import argparse
 import numpy as np
 from blackjack_sim.blackjack_rl_env import BlackjackRLEnv
@@ -15,7 +14,6 @@ from blackjack_sim.config import (
 )
 from blackjack_sim.utils import (
     plot_training_progress,
-    analyze_policy,
     print_statistics,
     get_strategy_df
 )
