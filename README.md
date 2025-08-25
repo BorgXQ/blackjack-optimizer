@@ -46,13 +46,6 @@ The trained agent, basic strategy model, and a random baseline model are run ove
 Although the hypothesis has been broadly validated, we now turn to a deeper analysis of the agents. Out of the 600 possible state combinations, we focus on where the trained agent and the basic strategy model agree on the same action. To explore this, we construct a combined agent that selects the optimal action on a state-by-state basis, recording which model each chosen action originates from.
 
 <p align="center">
-    | **Metric** | **Combined Agent** | **Trained Agent** | **Basic Strat Baseline** | **Random Baseline** |
-    |-----------|------|------|-------------|---------|
-    | Winrate | 0.4081 | 0.3987 | 0.3891 | 0.2696 |
-    | Avg Return | -0.1097 | -0.1265 | -0.1512 | -0.4589 |
-</p>
-
-<p align="center">
   <table align="center">
     <thead>
       <tr>
